@@ -40,8 +40,8 @@ driver.maximize_window()
 
 time.sleep(1)
 
-username = 'johnnyj2608'
-password = 'Wowwow321!'
+username = 'username'
+password = 'password'
 
 username_field = driver.find_element('xpath', '//*[@id="username"]')
 username_field.send_keys(username)
@@ -73,4 +73,3 @@ driver.switch_to.frame(iframe)
 add_row_button = driver.find_element('xpath', '//*[@id="btnAddRow"]')
 for i in range(len(dates)-12):
     add_row_button.click()
-print(len(dates))
