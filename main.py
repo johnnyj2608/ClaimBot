@@ -2,7 +2,6 @@
 # Have an excel sheet with tabs for each insurance (payer / templates)
 # First tab will be a "summary" page
 # includes: payer, billing & rendering provider, and facilities
-# Must use already opened Chrome
 # Count days. If not enough rows , create rows until satisfactory
 # Auto fill days according to member's schedule
 # Download claim to folder
@@ -20,7 +19,6 @@ def getDatesFromWeekdays(month, year, weekdays):
         date = datetime(year, month, day)
         if date.weekday() in weekdays:
             monthDays.append(date.strftime("%m/%d/%Y"))
-
 
     return monthDays
 
@@ -40,8 +38,8 @@ driver.maximize_window()
 
 time.sleep(1)
 
-username = 'username'
-password = 'password'
+username = 'johnnyj2608'
+password = 'Wowwow321!'
 
 username_field = driver.find_element('xpath', '//*[@id="username"]')
 username_field.send_keys(username)
