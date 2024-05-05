@@ -15,7 +15,7 @@ class ClaimbotGUI:
         self.root = ctk.CTk()
         self.root.title("Claimbot")
 
-        self.root.attributes("-topmost", True)
+        self.root.after(1, lambda: self.root.attributes("-topmost", True))
         self.root.geometry(self.centerWindow(self.root, 350, 500, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
@@ -92,10 +92,10 @@ class ClaimbotGUI:
         self.checkbox.grid(row=11, column=0, columnspan=5, pady=20, padx=50)
 
         self.browseButton = ctk.CTkButton(master=self.frame, text="Automate", command=self.automate)
-        self.browseButton.grid(row=12, column=0, columnspan=5, pady=(0, 10), padx=10)
+        self.browseButton.grid(row=12, column=0, columnspan=5, pady=0, padx=10)
 
-        self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
-        self.statusLabel.grid(row=13, column=0, columnspan=2, pady=6, padx=10)
+        self.statusLabel = ctk.CTkLabel(master=self.frame, text="wjabndajwubdwuaj")
+        self.statusLabel.grid(row=13, column=0, columnspan=5, pady=0, padx=10)
 
         self.frame.grid_columnconfigure((0, 4), weight=1)
 
@@ -123,6 +123,7 @@ class ClaimbotGUI:
         calendarWindow.title('Choose date')
         calendarWindow.geometry('240x200')
         calendarWindow.grab_set()
+        calendarWindow.attributes("-topmost", True)
 
         root_x = self.root.winfo_rootx()
         rootWidth = self.root.winfo_width()
@@ -198,12 +199,32 @@ class ClaimbotGUI:
         return val == "" or (val.isdigit() and len(val) <= 4)
     
     def validateDateRange(self):
+        try:
+            startMonth = int(self.startMonthEntry.get())
+            startDay = int(self.startDayEntry.get())
+            startYear = int(self.startYearEntry.get())
+            startDate = datetime(startYear, startMonth, startDay)
+        except ValueError:
+            return False, "Start date does not exist"
+        
+        try:
+            endMonth = int(self.endMonthEntry.get())
+            endDay = int(self.endDayEntry.get())
+            endYear = int(self.endYearEntry.get())
+            endDate = datetime(endYear, endMonth, endDay)
+        except ValueError:
+            return False, "End date does not exist"
+        
+        if endDate < startDate:
+            return False, "End date set before start date"
+
         return True, "Success"
 
     def automate(self):
         valid, response = self.validateDateRange()
         if not valid:
-            self.statusLabel = response
+            self.statusLabel.configure(text=response)
+            return
         print("automate")
 
     def run(self):
