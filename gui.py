@@ -14,11 +14,11 @@ class ClaimbotGUI:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Claimbot")
-        today = datetime.today()
 
-        self.root.geometry(self.centerWindow(self.root, 500, 600, self.root._get_window_scaling()))
+        self.root.attributes("-topmost", True)
+        self.root.geometry(self.centerWindow(self.root, 350, 500, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
-        self.frame.pack(pady=20, padx=70, fill="both", expand=True)
+        self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -26,6 +26,7 @@ class ClaimbotGUI:
         self.titleLabel = ctk.CTkLabel(master=self.frame, text="Automate Claims")
         self.titleLabel.grid(row=0, column=0, columnspan=5, pady=12, padx=10)
 
+        self.filePath = ""
         self.folderLabel = ctk.CTkLabel(master=self.frame, text="No Excel File Selected")
         self.folderLabel.grid(row=1, column=0, columnspan=5, pady=0, padx=10)
 
@@ -37,18 +38,15 @@ class ClaimbotGUI:
 
         self.startMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.startMonthEntry.grid(row=5, column=0, pady=0, padx=1, sticky="e")
-        self.startMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonthDay), "%P"))
-        self.startMonthEntry.insert(0, today.month)
+        self.startMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"))
 
         self.startDayEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.startDayEntry.grid(row=5, column=1, pady=0, padx=1, sticky="e")
-        self.startDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonthDay), "%P"))
-        self.startDayEntry.insert(0, 1)
+        self.startDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"))
 
         self.startYearEntry = ctk.CTkEntry(master=self.frame, width=45)
         self.startYearEntry.grid(row=5, column=2, pady=0, padx=1, sticky="e")
         self.startYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"))
-        self.startYearEntry.insert(0, today.year)
 
         img = ctk.CTkImage(dark_image=Image.open(r"./assets/datePickerIcon.png"))
         self.startDatePickerButton = ctk.CTkButton(self.frame, 
@@ -64,18 +62,15 @@ class ClaimbotGUI:
 
         self.endMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.endMonthEntry.grid(row=8, column=0, pady=0, padx=1, sticky="e")
-        self.endMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonthDay), "%P"))
-        self.endMonthEntry.insert(0, today.month)
+        self.endMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"))
 
         self.endDayEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.endDayEntry.grid(row=8, column=1, pady=0, padx=1, sticky="e")
-        self.endDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonthDay), "%P"))
-        self.endDayEntry.insert(0, today.day)
+        self.endDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"))
 
         self.endYearEntry = ctk.CTkEntry(master=self.frame, width=45)
         self.endYearEntry.grid(row=8, column=2, pady=0, padx=1, sticky="e")
         self.endYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"))
-        self.endYearEntry.insert(0, today.year)
 
         self.endDatePickerButton = ctk.CTkButton(self.frame, 
                                                     image=img, 
@@ -84,6 +79,23 @@ class ClaimbotGUI:
                                                     width=32, 
                                                     height=32)
         self.endDatePickerButton.grid(row=8, column=4, pady=0, padx=(5, 10), sticky="w")
+
+        self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance Companies")
+        self.insuranceLabel.grid(row=9, column=0, columnspan=5, pady=(10, 0), padx=10, sticky="ew")
+
+        self.insuranceCombo = ctk.CTkComboBox(master=self.frame, values=list([]))
+        self.insuranceCombo.grid(row=10, column=0, columnspan=5, pady=0, padx=10)
+        self.insuranceCombo.set("")
+
+        self.autoSubmit = ctk.BooleanVar()
+        self.checkbox = ctk.CTkCheckBox(master=self.frame, text="Enable auto submit", variable=self.autoSubmit)
+        self.checkbox.grid(row=11, column=0, columnspan=5, pady=20, padx=50)
+
+        self.browseButton = ctk.CTkButton(master=self.frame, text="Automate", command=self.automate)
+        self.browseButton.grid(row=12, column=0, columnspan=5, pady=(0, 10), padx=10)
+
+        self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
+        self.statusLabel.grid(row=13, column=0, columnspan=2, pady=6, padx=10)
 
         self.frame.grid_columnconfigure((0, 4), weight=1)
 
@@ -95,12 +107,16 @@ class ClaimbotGUI:
         return f"{width}x{height}+{x}+{y}"
     
     def browseFolder(self):
-        filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
-        if filePath and validateExcelFile(filePath):
-            fileName = os.path.basename(filePath)
-            self.folderLabel.configure(text=fileName, text_color="gray84")
-        else:
-            self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
+        self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
+        if self.filePath:
+            sheets = validateExcelFile(self.filePath)
+            if sheets:
+                self.insuranceCombo.configure(values=sheets)
+                self.insuranceCombo.set(sheets[0])
+                fileName = os.path.basename(self.filePath)
+                self.folderLabel.configure(text=fileName, text_color="gray84")
+            else:
+                self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
 
     def toggleCalendar(self, range):
         calendarWindow = CTkToplevel()
@@ -172,20 +188,23 @@ class ClaimbotGUI:
         self.cal.grid_remove()
         self.cal.master.destroy()
 
-    def validatePickedDate(self):
-        pass
-
-    def validateTypedDate(self):
-        pass
-
     def validateMonth(self, val):
-        return val == "" or (val.isdigit() and int(val) <= 12)
+        return val == "" or (val.isdigit() and len(val) <= 2)
 
-    def validateMonthDay(self, val):
-        return val == "" or (val.isdigit() and int(val) <= 31)
+    def validateDay(self, val):
+        return val == "" or (val.isdigit() and len(val) <= 2)
 
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
+    
+    def validateDateRange(self):
+        return True, "Success"
+
+    def automate(self):
+        valid, response = self.validateDateRange()
+        if not valid:
+            self.statusLabel = response
+        print("automate")
 
     def run(self):
         self.root.mainloop()
