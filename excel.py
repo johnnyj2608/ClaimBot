@@ -17,8 +17,8 @@ def validateExcelFile(excelFilePath):
                 continue
             else: 
                 filteredSheets.append(sheet.name)
-
-        if summary and summary.range('A1').value != "Claimbot Summary":
+                
+        if not summary or summary.range('A1').value != "Claimbot Summary":
             return []
         
     except FileNotFoundError:
