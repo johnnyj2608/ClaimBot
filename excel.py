@@ -7,10 +7,13 @@ def validateExcelFile(excelFilePath):
 
     closeExcelFile(excelFilePath)
 
+    filteredSheets = []
+    summaryValues = {}
+
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
         summary = None
-        filteredSheets = []
+        
         for sheet in wb.sheets:
             if "summary" == sheet.name.lower():
                 summary = sheet
@@ -22,18 +25,22 @@ def validateExcelFile(excelFilePath):
         if not summary or summary.range('A1').value != "Claimbot Summary":
             return []
         
+        summaryValues = {
+                "billingProvider": summary.range('C2').value,
+                "rendingProivider": summary.range('C3').value,
+                "Facilities": summary.range('C4').value
+            }
+        
     except FileNotFoundError:
         print(f"File not found.")
     
     app.quit()
-    return filteredSheets
-import os
+    return filteredSheets, summaryValues
+
 def getMembersByInsurance(excelFilePath, insurance):
     app = xw.App(visible=False)
 
     closeExcelFile(excelFilePath)
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    excelFilePath = os.path.join(current_dir, 'Claimbot Template.xlsx')
 
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)

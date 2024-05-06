@@ -20,6 +20,8 @@ class ClaimbotGUI:
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
+        self.summaryValues = {}
+
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
@@ -112,7 +114,7 @@ class ClaimbotGUI:
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
         if self.filePath:
-            sheets = validateExcelFile(self.filePath)
+            sheets, self.summaryValues = validateExcelFile(self.filePath)
             if sheets:
                 self.enableUserInteraction()
                 self.insuranceCombo.configure(values=sheets)
@@ -239,8 +241,13 @@ class ClaimbotGUI:
         # Disable buttons & change button color to red 'stop'
         insurance = self.insuranceCombo.get()
         members = getMembersByInsurance(self.filePath, insurance)
-        print(members)
-        # Summary B2, B3, B4
+
+        print("Billing Provider:", self.summaryValues["billingProvider"])
+        print("Rendering Provider:", self.summaryValues["rendingProivider"])
+        print("Facilities:", self.summaryValues["Facilities"])
+        [print(member) for member in members]
+        print(self.autoSubmit.get())
+
         # Use Selenium to fill claims
         # If autoSubmit = true, submit claims
         # Enable buttons & revert button color change
