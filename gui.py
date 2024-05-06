@@ -275,6 +275,3 @@ class ClaimbotGUI:
 
     def run(self):
         self.root.mainloop()
-
-app = ClaimbotGUI()
-app.run()
