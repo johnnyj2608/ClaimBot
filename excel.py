@@ -1,5 +1,6 @@
 import xlwings as xw
 import psutil
+import pandas as pd
 
 def validateExcelFile(excelFilePath):
     app = xw.App(visible=False)
@@ -17,7 +18,7 @@ def validateExcelFile(excelFilePath):
                 continue
             else: 
                 filteredSheets.append(sheet.name)
-                
+
         if not summary or summary.range('A1').value != "Claimbot Summary":
             return []
         
@@ -26,24 +27,38 @@ def validateExcelFile(excelFilePath):
     
     app.quit()
     return filteredSheets
-
+import os
 def getMembersByInsurance(excelFilePath, insurance):
     app = xw.App(visible=False)
 
     closeExcelFile(excelFilePath)
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    excelFilePath = os.path.join(current_dir, 'Claimbot Template.xlsx')
 
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
+        ws = None
         for sheet in wb.sheets:
             if sheet.name == insurance:
                 ws = sheet
                 break
-        print(ws.range('A1').value)
+
+        if not ws:
+            return []
         
+        members = []
+        dataRange = ws.range('A1:F1').expand('down').value
+        df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
+        df['Auth Start'] = pd.to_datetime(df['Auth Start']).dt.date
+        df['Auth End'] = pd.to_datetime(df['Auth End']).dt.date
+        for index, row in df.iterrows():
+            members.append(list(row))
+
     except FileNotFoundError:
         print(f"File not found.")
     
     app.quit()
+    return members
 
 def closeExcelFile(excelFilePath):
     for proc in psutil.process_iter():
@@ -54,4 +69,3 @@ def closeExcelFile(excelFilePath):
                         proc.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
-

@@ -2,9 +2,9 @@ import customtkinter as ctk
 from customtkinter import filedialog 
 from customtkinter import CTkToplevel
 from tkcalendar import Calendar
-from excel import validateExcelFile
+from excel import validateExcelFile, getMembersByInsurance
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from PIL import Image
 
 class ClaimbotGUI:
@@ -114,11 +114,12 @@ class ClaimbotGUI:
         if self.filePath:
             sheets = validateExcelFile(self.filePath)
             if sheets:
+                self.enableUserInteraction()
                 self.insuranceCombo.configure(values=sheets)
                 self.insuranceCombo.set(sheets[0])
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
-                self.enableUserInteraction()
+                
             else:
                 self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
                 self.disableUserInteraction()
@@ -236,7 +237,10 @@ class ClaimbotGUI:
 
         self.statusLabel.configure(text=response, text_color="gray84")
         # Disable buttons & change button color to red 'stop'
-        # Get all members
+        insurance = self.insuranceCombo.get()
+        members = getMembersByInsurance(self.filePath, insurance)
+        print(members)
+        # Summary B2, B3, B4
         # Use Selenium to fill claims
         # If autoSubmit = true, submit claims
         # Enable buttons & revert button color change
