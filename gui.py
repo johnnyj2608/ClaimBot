@@ -244,7 +244,9 @@ class ClaimbotGUI:
 
         print("Billing Provider:", self.summaryValues["billingProvider"])
         print("Rendering Provider:", self.summaryValues["rendingProivider"])
-        print("Facilities:", self.summaryValues["Facilities"])
+        print("Facilities:", self.summaryValues["facilities"])
+        print("Username:", self.summaryValues["username"])
+        print("Password:", self.summaryValues["password"])
         [print(member) for member in members]
         print(self.autoSubmit.get())
 

@@ -28,7 +28,9 @@ def validateExcelFile(excelFilePath):
         summaryValues = {
                 "billingProvider": summary.range('C2').value,
                 "rendingProivider": summary.range('C3').value,
-                "Facilities": summary.range('C4').value
+                "facilities": summary.range('C4').value,
+                "username": summary.range('C6').value,
+                "password": summary.range('C7').value
             }
         
     except FileNotFoundError:
