@@ -1,3 +1,7 @@
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 from datetime import datetime, timedelta
 
@@ -12,63 +16,100 @@ def getDatesFromWeekdays(month, year, weekdays):
 
     return monthDays
 
-dates = getDatesFromWeekdays(4,2024,[0, 1, 2, 3, 4])
+def officeAllyAutomate(insurance, summary, members):
+    office_ally = 'https://www.officeally.com/secure_oa.asp'
 
-office_ally = 'https://www.officeally.com/secure_oa.asp'
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+    driver = webdriver.Chrome(options=options)
+    driver.get(office_ally)
+    driver.maximize_window()
+    # driver.implicitly_wait(10)
 
-options = webdriver.ChromeOptions()
-options.add_experimental_option("detach", True)
+    # ------------- LOGIN PAGE ------------
 
-driver = webdriver.Chrome(options=options)
-driver.get(office_ally)
-driver.maximize_window()
-# driver.implicitly_wait(10)
+    usernameField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
+    )
+    passwordField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="password"]'))
+    )
+    loginButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
+    )
 
-username = 'username'
-password = 'password'
+    usernameField.send_keys(summary['username'])
+    passwordField.send_keys(summary['password'])
+    loginButton.click()
 
-username_field = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
-)
-password_field = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="password"]'))
-)
-login_button = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
-)
+    # ------------- SUMMARY PAGE ------------
 
-username_field.send_keys(username)
-password_field.send_keys(password)
-login_button.click()
+    driver.get('https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage')
 
-driver.get('https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage')
+    iframe = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
+    )
+    driver.switch_to.frame(iframe)
 
-iframe = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
-)
-driver.switch_to.frame(iframe)
+    payerCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlPayer"]'))
+    ))
+    patientsCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlPatient"]'))
+    ))
+    billingProviderCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlBillingProvider"]'))
+    ))
+    renderingProviderCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlRenderingProvider"]'))
+    ))
+    facilitiesCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlFacility"]'))
+    ))
+    templatesCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ddlTemplate"]'))
+    ))
+    createClaimButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
+    )
 
-# Insert summary data here
+    renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
+    facilitiesCombo.select_by_visible_text(summary['facilities'])
+    templatesCombo.select_by_visible_text(insurance)
 
-create_claim_button = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
-)
-create_claim_button.click()
+    # Loop starts here
+    # lastName, firstName, [mm/dd/yyyy]
+    # If patient not found, skip. Write log of events
 
-driver.switch_to.default_content()
-iframe = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
-)
-driver.switch_to.frame(iframe)
+    createClaimButton.click()
 
-add_row_button = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
-)
-for i in range(len(dates)-12):
-    add_row_button.click()
+    # ------------- CLAIMS PAGE ------------
 
-# Insert member days data here
+    # ------------- CMS-1500 ------------
+
+    driver.switch_to.default_content()
+    iframe = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
+    )
+    driver.switch_to.frame(iframe)
+
+    addRowButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
+    )
+
+    dates = getDatesFromWeekdays(4,2024,[0, 1, 2, 3, 4])
+    for _ in range(len(dates)-12):
+        addRowButton.click()
+
+    # Insert member days data here
+
+summaryValues = {
+                "billingProvider": 'billingProvider',
+                "renderingProvider": 'Provider, Rendering [123]',
+                "facilities": 'facilities',
+                "username": 'username',
+                "password": 'password'
+            }
+
+officeAllyAutomate('Insurance', summaryValues, [])
