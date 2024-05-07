@@ -25,7 +25,7 @@ class ClaimbotGUI:
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
-        self.titleLabel = ctk.CTkLabel(master=self.frame, text="Automate Claims")
+        self.titleLabel = ctk.CTkLabel(master=self.frame, text="Automate Claims", font=(None, 25, "bold"))
         self.titleLabel.grid(row=0, column=0, columnspan=5, pady=12, padx=10)
 
         self.filePath = ""
