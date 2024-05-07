@@ -243,7 +243,7 @@ class ClaimbotGUI:
         members = getMembersByInsurance(self.filePath, insurance)
 
         print("Billing Provider:", self.summaryValues["billingProvider"])
-        print("Rendering Provider:", self.summaryValues["rendingProvider"])
+        print("Rendering Provider:", self.summaryValues["renderingProvider"])
         print("Facilities:", self.summaryValues["facilities"])
         print("Username:", self.summaryValues["username"])
         print("Password:", self.summaryValues["password"])

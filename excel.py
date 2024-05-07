@@ -27,7 +27,7 @@ def validateExcelFile(excelFilePath):
         
         summaryValues = {
                 "billingProvider": summary.range('C2').value,
-                "rendingProvider": summary.range('C3').value,
+                "renderingProvider": summary.range('C3').value,
                 "facilities": summary.range('C4').value,
                 "username": summary.range('C6').value,
                 "password": summary.range('C7').value
