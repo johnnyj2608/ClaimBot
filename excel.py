@@ -56,8 +56,9 @@ def getMembersByInsurance(excelFilePath, insurance):
             return []
         
         members = []
-        dataRange = ws.range('A1:F1').expand('down').value
+        dataRange = ws.range('A1:H1').expand('down').value
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
+        df['Birth Date'] = pd.to_datetime(df['Birth Date']).dt.date
         df['Auth Start'] = pd.to_datetime(df['Auth Start']).dt.date
         df['Auth End'] = pd.to_datetime(df['Auth End']).dt.date
         for index, row in df.iterrows():
