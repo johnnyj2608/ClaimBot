@@ -5,16 +5,16 @@ from selenium.webdriver.support.ui import Select
 
 from datetime import datetime, timedelta
 
-def getDatesFromWeekdays(month, year, weekdays):
-    numDays = (datetime(year, month % 12 + 1, 1) - timedelta(days=1)).day
-    monthDays = []
-
-    for day in range(1, numDays+1):
-        date = datetime(year, month, day)
-        if date.weekday() in weekdays:
-            monthDays.append(date.strftime("%m/%d/%Y"))
-
-    return monthDays
+def getDatesFromWeekdays(startDate, endDate, weekdays):
+    dates = []
+    delta = timedelta(days=1)
+    
+    curDate = startDate
+    while curDate <= endDate:
+        if curDate.weekday() in weekdays:
+            dates.append((curDate.day, curDate.month, curDate.year))
+        curDate += delta
+    return dates
 
 def officeAllyAutomate(insurance, summary, members):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
@@ -112,4 +112,4 @@ summaryValues = {
                 "password": 'password'
             }
 
-officeAllyAutomate('Insurance', summaryValues, [])
+# officeAllyAutomate('Insurance', summaryValues, [])
