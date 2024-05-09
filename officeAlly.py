@@ -8,21 +8,14 @@ from datetime import datetime, timedelta
 def getDatesFromWeekdays(startDate, endDate, weekdays):
     dates = []
     weekdays = set([int(x) for x in weekdays.split(".")])
-    print(weekdays)
     delta = timedelta(days=1)
     
     curDate = startDate
     while curDate <= endDate:
         if curDate.weekday() in weekdays:
-            dates.append((curDate.day, curDate.month, curDate.year))
+            dates.append(curDate)
         curDate += delta
     return dates
-
-startDate = datetime(2024, 5, 1)  # May 1, 2024
-endDate = datetime(2024, 5, 31)   # May 31, 2024
-weekdays = "1.2.3.4.5"        # Monday to Friday
-
-print(getDatesFromWeekdays(startDate, endDate, weekdays))
 
 def officeAllyAutomate(insurance, summary, members):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
@@ -106,18 +99,109 @@ def officeAllyAutomate(insurance, summary, members):
         EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
     )
 
-    dates = getDatesFromWeekdays(4,2024,[0, 1, 2, 3, 4])
-    for _ in range(len(dates)-12):
+    dates = getDatesFromWeekdays(
+        datetime(2024, 5, 1),
+        datetime(2024, 5, 31),
+        "1.2.3.4.5")
+    
+    # Get template values
+    placeDefault = driver.find_element(
+            'xpath', 
+            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC0"]')
+    placeDefault = placeDefault.get_attribute("value")
+
+    cptDefault = driver.find_element(
+            'xpath', 
+            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE0"]')
+    cptDefault = cptDefault.get_attribute("value")
+
+    chargeDefault = driver.find_element(
+            'xpath', 
+            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG0"]')
+    chargeDefault = chargeDefault.get_attribute("value")
+
+    unitsDefault = driver.find_element(
+            'xpath', 
+            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
+    unitsDefault = unitsDefault.get_attribute("value")
+
+    for rowNum in range(12, len(dates)):
         addRowButton.click()
 
-    # Insert member days data here
+        placeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]'
+            )
+        
+        cptRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]'
+            )
+        
+        chargeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]'
+            )
+        
+        unitsRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]'
+            )
+        
+        placeRow.send_keys(placeDefault)
+        cptRow.send_keys(cptDefault)
+        chargeRow.send_keys(chargeDefault)
+        unitsRow.send_keys(unitsDefault)
+
+    for rowNum in range(len(dates)):
+        curDate = dates[rowNum]
+        month = curDate.month
+        day = curDate.day
+        year = curDate.year
+
+        fmMonth = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]'
+            )
+        
+        fmDay = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]'
+            )
+        
+        fmYear = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]'
+            )
+        
+        toMonth = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]'
+            )
+        
+        toDay = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]'
+            )
+        
+        toYear = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]'
+            )
+        
+        fmMonth.send_keys(month)
+        fmDay.send_keys(day)
+        fmYear.send_keys(year)
+        toMonth.send_keys(month)
+        toDay.send_keys(day)
+        toYear.send_keys(year)
 
 summaryValues = {
                 "billingProvider": 'billingProvider',
                 "renderingProvider": 'Provider, Rendering [123]',
                 "facilities": 'facilities',
-                "username": 'username',
-                "password": 'password'
+                "username": 'johnnyj2608',
+                "password": 'Wowwow321!'
             }
 
-# officeAllyAutomate('Insurance', summaryValues, [])
+officeAllyAutomate('Insurance', summaryValues, [])
