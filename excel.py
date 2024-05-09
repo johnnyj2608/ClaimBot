@@ -64,6 +64,8 @@ def getMembersByInsurance(excelFilePath, insurance):
         for index, row in df.iterrows():
             members.append(list(row))
 
+        # lastName, firstName, birthDate, Auth#, DxCode, Schedule, AuthStart, AuthEnd
+
     except FileNotFoundError:
         print(f"File not found.")
     
