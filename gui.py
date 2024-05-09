@@ -6,6 +6,7 @@ from excel import validateExcelFile, getMembersByInsurance
 import os
 from datetime import datetime
 from PIL import Image
+from officeAlly import officeAllyAutomate
 
 class ClaimbotGUI:
 
@@ -229,7 +230,7 @@ class ClaimbotGUI:
         if (endDate - startDate).days > 60:
             return False, "Range of dates are too large"
 
-        return True, "Automating"
+        return True, (startDate, endDate)
 
     def automate(self):
         valid, response = self.validateDateRange()
@@ -239,19 +240,14 @@ class ClaimbotGUI:
 
         self.statusLabel.configure(text=response, text_color="gray84")
         # Disable buttons & change button color to red 'stop'
-        insurance = self.insuranceCombo.get()
-        members = getMembersByInsurance(self.filePath, insurance)
 
-        print("Billing Provider:", self.summaryValues["billingProvider"])
-        print("Rendering Provider:", self.summaryValues["renderingProvider"])
-        print("Facilities:", self.summaryValues["facilities"])
-        print("Username:", self.summaryValues["username"])
-        print("Password:", self.summaryValues["password"])
-        [print(member) for member in members]
-        print(self.autoSubmit.get())
+        officeAllyAutomate(self.insuranceCombo.get(),
+                            self.summaryValues, 
+                            getMembersByInsurance(self.filePath, self.insuranceCombo.get()),
+                            response[0],
+                            response[1],
+                            self.autoSubmit.get())
 
-        # Use Selenium to fill claims
-        # If autoSubmit = true, submit claims
         # Enable buttons & revert button color change
 
     def disableUserInteraction(self):

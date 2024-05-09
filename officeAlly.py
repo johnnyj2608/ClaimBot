@@ -17,7 +17,7 @@ def getDatesFromWeekdays(startDate, endDate, weekdays):
         curDate += delta
     return dates
 
-def officeAllyAutomate(insurance, summary, members):
+def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
 
     options = webdriver.ChromeOptions()
@@ -82,6 +82,8 @@ def officeAllyAutomate(insurance, summary, members):
     # Loop starts here
     # lastName, firstName, [mm/dd/yyyy]
     # If patient not found, skip. Write log of events
+  
+    dates = getDatesFromWeekdays(start, end,members[0][5])
 
     createClaimButton.click()
 
@@ -99,11 +101,6 @@ def officeAllyAutomate(insurance, summary, members):
         EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
     )
 
-    dates = getDatesFromWeekdays(
-        datetime(2024, 5, 1),
-        datetime(2024, 5, 31),
-        "1.2.3.4.5")
-    
     # Get template values
     placeDefault = driver.find_element(
             'xpath', 
@@ -195,13 +192,3 @@ def officeAllyAutomate(insurance, summary, members):
         toMonth.send_keys(month)
         toDay.send_keys(day)
         toYear.send_keys(year)
-
-summaryValues = {
-                "billingProvider": 'billingProvider',
-                "renderingProvider": 'Provider, Rendering [123]',
-                "facilities": 'facilities',
-                "username": 'johnnyj2608',
-                "password": 'Wowwow321!'
-            }
-
-officeAllyAutomate('Insurance', summaryValues, [])
