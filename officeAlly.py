@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 
 def getDatesFromWeekdays(startDate, endDate, weekdays):
     dates = []
+    weekdays = set([int(x) for x in weekdays.split(".")])
+    print(weekdays)
     delta = timedelta(days=1)
     
     curDate = startDate
@@ -15,6 +17,12 @@ def getDatesFromWeekdays(startDate, endDate, weekdays):
             dates.append((curDate.day, curDate.month, curDate.year))
         curDate += delta
     return dates
+
+startDate = datetime(2024, 5, 1)  # May 1, 2024
+endDate = datetime(2024, 5, 31)   # May 31, 2024
+weekdays = "1.2.3.4.5"        # Monday to Friday
+
+print(getDatesFromWeekdays(startDate, endDate, weekdays))
 
 def officeAllyAutomate(insurance, summary, members):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
