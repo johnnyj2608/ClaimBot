@@ -5,7 +5,13 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from scheduleParser import getDatesFromWeekdays
 
-def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
+def officeAllyAutomate(insurance, 
+                       summary, 
+                       members, 
+                       start, 
+                       end, 
+                       autoSubmit,
+                       statusLabel):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
 
     options = webdriver.ChromeOptions()
@@ -67,6 +73,8 @@ def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
     facilitiesCombo.select_by_visible_text(summary['facilities'])
     templatesCombo.select_by_visible_text(insurance)
 
+    totalMembers, completedMembers = len(members), 0
+
     for member in members:
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
 
@@ -75,6 +83,9 @@ def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
             patientsCombo.select_by_visible_text(searchString)
         except NoSuchElementException:
             print(f"Element with visible text '{searchString}' not found.")
+            completedMembers += 1
+            statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
+            statusLabel.update()
             continue
         dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
 
@@ -185,3 +196,7 @@ def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
             toMonth.send_keys(month)
             toDay.send_keys(day)
             toYear.send_keys(year)
+
+        completedMembers += 1
+        statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
+        statusLabel.update()

@@ -238,7 +238,7 @@ class ClaimbotGUI:
             self.statusLabel.configure(text=response, text_color="red")
             return
 
-        self.statusLabel.configure(text=response, text_color="gray84")
+        self.statusLabel.configure(text="", text_color="gray84")
         # Fix status label
         # Disable buttons & change button color to red 'stop'
 
@@ -248,7 +248,8 @@ class ClaimbotGUI:
             getMembersByInsurance(self.filePath, self.insuranceCombo.get()),
             response[0],
             response[1],
-            self.autoSubmit.get()))
+            self.autoSubmit.get(),
+            self.statusLabel))
         thread.start()
 
         # Enable buttons & revert button color change
