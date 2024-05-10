@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from PIL import Image
 from officeAlly import officeAllyAutomate
+from threading import Thread
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
@@ -132,15 +133,12 @@ class ClaimbotGUI:
     def toggleCalendar(self, range):
         calendarWindow = CTkToplevel()
         calendarWindow.title('Choose date')
-        calendarWindow.geometry('240x200')
+        calendarWindow.geometry('300x200')
         calendarWindow.grab_set()
         calendarWindow.attributes("-topmost", True)
 
-        root_x = self.root.winfo_rootx()
-        rootWidth = self.root.winfo_width()
-        windowWidth = calendarWindow.winfo_width()
-        x = root_x + (rootWidth - windowWidth) // 2
-
+        
+        x = self.root.winfo_rootx()
         if range == 'start':
             buttonWidget = self.startDatePickerButton
         elif range == 'end':
@@ -244,12 +242,14 @@ class ClaimbotGUI:
         # Fix status label
         # Disable buttons & change button color to red 'stop'
 
-        officeAllyAutomate(self.insuranceCombo.get(),
-                            self.summaryValues, 
-                            getMembersByInsurance(self.filePath, self.insuranceCombo.get()),
-                            response[0],
-                            response[1],
-                            self.autoSubmit.get())
+        thread = Thread(target = officeAllyAutomate, args=(
+            self.insuranceCombo.get(),
+            self.summaryValues, 
+            getMembersByInsurance(self.filePath, self.insuranceCombo.get()),
+            response[0],
+            response[1],
+            self.autoSubmit.get()))
+        thread.start()
 
         # Enable buttons & revert button color change
 
