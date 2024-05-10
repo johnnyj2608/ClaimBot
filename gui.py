@@ -11,11 +11,17 @@ from threading import Thread
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
+class ProcessStop:
+    def __init__(self):
+        self.value = False
+
 class ClaimbotGUI:
 
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Claimbot")
+        self.stopFlag = ProcessStop()
+        self.runningFlag = False
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
         self.root.geometry(self.rightAlignWindow(self.root, 350, 500, self.root._get_window_scaling()))
@@ -231,10 +237,15 @@ class ClaimbotGUI:
         return True, (startDate, endDate)
 
     def automate(self):
+        if self.runningFlag:
+            self.stopFlag.value = True
+            self.automateButton.configure(text="Stopping...")
+            return
         valid, response = self.validateDateRange()
         if not valid:
             self.statusLabel.configure(text=response, text_color="red")
             return
+        self.runningFlag = True
         self.automateButton.configure(text="Stop", fg_color='#800000', hover_color='#98423d')
         self.statusLabel.configure(text="", text_color="gray84")
         self.disableUserInteraction()
@@ -248,11 +259,13 @@ class ClaimbotGUI:
             response[1],
             self.autoSubmit.get(),
             self.statusLabel,
+            self.stopFlag,
             self.automationCallback))
         
         thread.start()
 
     def automationCallback(self):
+        self.runningFlag = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 

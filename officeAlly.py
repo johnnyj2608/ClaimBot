@@ -12,6 +12,7 @@ def officeAllyAutomate(insurance,
                        end, 
                        autoSubmit,
                        statusLabel,
+                       stopFlag, 
                        callback):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
 
@@ -34,7 +35,7 @@ def officeAllyAutomate(insurance,
     loginButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
     )
-    
+
     usernameField.send_keys(summary['username'])
     passwordField.send_keys(summary['password'])
     loginButton.click()
@@ -77,6 +78,10 @@ def officeAllyAutomate(insurance,
     totalMembers, completedMembers = len(members), 0
 
     for member in members:
+        if stopFlag.value:
+            stopFlag.value = False
+            print("Automation stopped")
+            break
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
 
         searchString = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
@@ -197,6 +202,9 @@ def officeAllyAutomate(insurance,
             toMonth.send_keys(month)
             toDay.send_keys(day)
             toYear.send_keys(year)
+
+        if autoSubmit:
+            pass
 
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
