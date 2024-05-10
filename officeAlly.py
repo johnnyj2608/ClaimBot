@@ -3,20 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
-
-from datetime import datetime, timedelta
-
-def getDatesFromWeekdays(startDate, endDate, weekdays):
-    dates = []
-    weekdays = set([int(x) for x in weekdays.split(".")])
-    delta = timedelta(days=1)
-    
-    curDate = startDate
-    while curDate <= endDate:
-        if curDate.weekday() in weekdays:
-            dates.append(curDate)
-        curDate += delta
-    return dates
+from scheduleParser import getDatesFromWeekdays
 
 def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
