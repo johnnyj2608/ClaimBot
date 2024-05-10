@@ -23,7 +23,7 @@ def validateExcelFile(excelFilePath):
                 filteredSheets.append(sheet.name)
 
         if not summary or summary.range('A1').value != "Claimbot Summary":
-            return []
+            return [], {}
         
         summaryValues = {
                 "billingProvider": summary.range('C2').value,
@@ -63,8 +63,6 @@ def getMembersByInsurance(excelFilePath, insurance):
         df['Auth End'] = pd.to_datetime(df['Auth End']).dt.date
         for index, row in df.iterrows():
             members.append(list(row))
-
-        # lastName, firstName, birthDate, Auth#, DxCode, Schedule, AuthStart, AuthEnd
 
     except FileNotFoundError:
         print(f"File not found.")
