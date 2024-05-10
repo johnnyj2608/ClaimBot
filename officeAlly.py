@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
 
 from datetime import datetime, timedelta
 
@@ -79,116 +80,121 @@ def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
     facilitiesCombo.select_by_visible_text(summary['facilities'])
     templatesCombo.select_by_visible_text(insurance)
 
-    # Loop starts here
-    # lastName, firstName, [mm/dd/yyyy]
-    # If patient not found, skip. Write log of events
-  
-    dates = getDatesFromWeekdays(start, end,members[0][5])
+    for member in members:
+        lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
 
-    createClaimButton.click()
+        searchString = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
+        try:
+            patientsCombo.select_by_visible_text(searchString)
+        except NoSuchElementException:
+            print(f"Element with visible text '{searchString}' not found.")
+            continue
+        dates = getDatesFromWeekdays(start, end, schedule)
 
-    # ------------- CLAIMS PAGE ------------
+        createClaimButton.click()
 
-    # ------------- CMS-1500 ------------
+        # ------------- CLAIMS PAGE ------------
 
-    driver.switch_to.default_content()
-    iframe = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
-    )
-    driver.switch_to.frame(iframe)
+        # ------------- CMS-1500 ------------
 
-    addRowButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
-    )
+        driver.switch_to.default_content()
+        iframe = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
+        )
+        driver.switch_to.frame(iframe)
 
-    # Get template values
-    placeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC0"]')
-    placeDefault = placeDefault.get_attribute("value")
+        addRowButton = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]'))
+        )
 
-    cptDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE0"]')
-    cptDefault = cptDefault.get_attribute("value")
+        # Get template values
+        placeDefault = driver.find_element(
+                'xpath', 
+                '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC0"]')
+        placeDefault = placeDefault.get_attribute("value")
 
-    chargeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG0"]')
-    chargeDefault = chargeDefault.get_attribute("value")
+        cptDefault = driver.find_element(
+                'xpath', 
+                '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE0"]')
+        cptDefault = cptDefault.get_attribute("value")
 
-    unitsDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
-    unitsDefault = unitsDefault.get_attribute("value")
+        chargeDefault = driver.find_element(
+                'xpath', 
+                '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG0"]')
+        chargeDefault = chargeDefault.get_attribute("value")
 
-    for rowNum in range(12, len(dates)):
-        addRowButton.click()
+        unitsDefault = driver.find_element(
+                'xpath', 
+                '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
+        unitsDefault = unitsDefault.get_attribute("value")
 
-        placeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]'
-            )
-        
-        cptRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]'
-            )
-        
-        chargeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]'
-            )
-        
-        unitsRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]'
-            )
-        
-        placeRow.send_keys(placeDefault)
-        cptRow.send_keys(cptDefault)
-        chargeRow.send_keys(chargeDefault)
-        unitsRow.send_keys(unitsDefault)
+        for rowNum in range(12, len(dates)):
+            addRowButton.click()
 
-    for rowNum in range(len(dates)):
-        curDate = dates[rowNum]
-        month = curDate.month
-        day = curDate.day
-        year = curDate.year
+            placeRow = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]'
+                )
+            
+            cptRow = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]'
+                )
+            
+            chargeRow = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]'
+                )
+            
+            unitsRow = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]'
+                )
+            
+            placeRow.send_keys(placeDefault)
+            cptRow.send_keys(cptDefault)
+            chargeRow.send_keys(chargeDefault)
+            unitsRow.send_keys(unitsDefault)
 
-        fmMonth = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
-        
-        fmDay = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]'
-            )
-        
-        fmYear = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
-        
-        toMonth = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
-        
-        toDay = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]'
-            )
-        
-        toYear = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
-        
-        fmMonth.send_keys(month)
-        fmDay.send_keys(day)
-        fmYear.send_keys(year)
-        toMonth.send_keys(month)
-        toDay.send_keys(day)
-        toYear.send_keys(year)
+        for rowNum in range(len(dates)):
+            curDate = dates[rowNum]
+            month = curDate.month
+            day = curDate.day
+            year = curDate.year
+
+            fmMonth = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]'
+                )
+            
+            fmDay = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]'
+                )
+            
+            fmYear = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]'
+                )
+            
+            toMonth = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]'
+                )
+            
+            toDay = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]'
+                )
+            
+            toYear = driver.find_element(
+                'xpath', 
+                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]'
+                )
+            
+            fmMonth.send_keys(month)
+            fmDay.send_keys(day)
+            fmYear.send_keys(year)
+            toMonth.send_keys(month)
+            toDay.send_keys(day)
+            toYear.send_keys(year)

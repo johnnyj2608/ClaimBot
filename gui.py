@@ -122,7 +122,6 @@ class ClaimbotGUI:
                 self.insuranceCombo.set(sheets[0])
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
-                
             else:
                 self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
                 self.disableUserInteraction()
@@ -239,6 +238,7 @@ class ClaimbotGUI:
             return
 
         self.statusLabel.configure(text=response, text_color="gray84")
+        # Fix status label
         # Disable buttons & change button color to red 'stop'
 
         officeAllyAutomate(self.insuranceCombo.get(),
