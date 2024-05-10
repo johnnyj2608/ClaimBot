@@ -76,7 +76,7 @@ def officeAllyAutomate(insurance, summary, members, start, end, autoSubmit):
         except NoSuchElementException:
             print(f"Element with visible text '{searchString}' not found.")
             continue
-        dates = getDatesFromWeekdays(start, end, schedule)
+        dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
 
         createClaimButton.click()
 
