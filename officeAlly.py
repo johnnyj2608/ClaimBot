@@ -11,7 +11,8 @@ def officeAllyAutomate(insurance,
                        start, 
                        end, 
                        autoSubmit,
-                       statusLabel):
+                       statusLabel,
+                       callback):
     office_ally = 'https://www.officeally.com/secure_oa.asp'
 
     options = webdriver.ChromeOptions()
@@ -33,7 +34,7 @@ def officeAllyAutomate(insurance,
     loginButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
     )
-
+    
     usernameField.send_keys(summary['username'])
     passwordField.send_keys(summary['password'])
     loginButton.click()
@@ -200,3 +201,4 @@ def officeAllyAutomate(insurance,
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+    callback()

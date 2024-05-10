@@ -13,8 +13,6 @@ ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 class ClaimbotGUI:
 
-    today = datetime.today()
-
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Claimbot")
@@ -237,10 +235,10 @@ class ClaimbotGUI:
         if not valid:
             self.statusLabel.configure(text=response, text_color="red")
             return
-
+        self.automateButton.configure(text="Stop", fg_color='#800000', hover_color='#98423d')
         self.statusLabel.configure(text="", text_color="gray84")
-        # Fix status label
-        # Disable buttons & change button color to red 'stop'
+        self.disableUserInteraction()
+        self.automateButton.configure(state="normal")
 
         thread = Thread(target = officeAllyAutomate, args=(
             self.insuranceCombo.get(),
@@ -249,12 +247,17 @@ class ClaimbotGUI:
             response[0],
             response[1],
             self.autoSubmit.get(),
-            self.statusLabel))
+            self.statusLabel,
+            self.automationCallback))
+        
         thread.start()
 
-        # Enable buttons & revert button color change
+    def automationCallback(self):
+        self.enableUserInteraction()
+        self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
     def disableUserInteraction(self):
+        self.browseButton.configure(state="disabled")
         self.insuranceCombo.configure(state="disabled")
 
         self.startMonthEntry.configure(state="disabled")
@@ -271,6 +274,7 @@ class ClaimbotGUI:
         self.automateButton.configure(state="disabled")
 
     def enableUserInteraction(self):
+        self.browseButton.configure(state="normal")
         self.insuranceCombo.configure(state="normal")
 
         self.startMonthEntry.configure(state="normal")
