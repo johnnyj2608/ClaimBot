@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 from PIL import Image
 from officeAlly import officeAllyAutomate
+import ctypes
+ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 class ClaimbotGUI:
 
@@ -17,7 +19,7 @@ class ClaimbotGUI:
         self.root.title("Claimbot")
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
-        self.root.geometry(self.centerWindow(self.root, 350, 500, self.root._get_window_scaling()))
+        self.root.geometry(self.rightAlignWindow(self.root, 350, 500, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
@@ -105,12 +107,13 @@ class ClaimbotGUI:
 
         self.frame.grid_columnconfigure((0, 4), weight=1)
 
-    def centerWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
+    def rightAlignWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
         screen_width = Screen.winfo_screenwidth()
         screen_height = Screen.winfo_screenheight()
-        x = int(((screen_width/2) - (width/2)) * scale_factor)
-        y = int(((screen_height/2) - (height/1.5)) * scale_factor)
+        x = int(screen_width - width * scale_factor) - 50
+        y = int((screen_height - height * scale_factor) / 2) - 100
         return f"{width}x{height}+{x}+{y}"
+
     
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
