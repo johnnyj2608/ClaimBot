@@ -17,7 +17,8 @@ class ProcessStop:
 
 class ClaimbotGUI:
 
-    def __init__(self):
+    def __init__(self, datePickerIcon):
+        self.datePickerIcon = datePickerIcon
         self.root = ctk.CTk()
         self.root.title("Claimbot")
         self.stopFlag = ProcessStop()
@@ -66,7 +67,7 @@ class ClaimbotGUI:
         self.startYearEntry.grid(row=6, column=2, pady=0, padx=1, sticky="e")
         self.startYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
 
-        img = ctk.CTkImage(dark_image=Image.open(r"./assets/datePickerIcon.png"))
+        img = ctk.CTkImage(dark_image=Image.open(self.datePickerIcon))
         self.startDatePickerButton = ctk.CTkButton(self.frame, 
                                                     image=img, 
                                                     text="", 
