@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from claimForms.cmsScript import cmsScript
+from claimForms.ubScript import ubScript
 
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
@@ -50,8 +51,15 @@ def officeAllyAutomate(insurance,
                       statusLabel,
                       stopFlag)
         else:
-            # UB
-            pass
+            ubScript(driver,
+                      insurance,
+                      summary,
+                      members,
+                      start, 
+                      end,
+                      autoSubmit,
+                      statusLabel,
+                      stopFlag)
 
     except Exception as e:
         print("An error occurred:", str(e))
