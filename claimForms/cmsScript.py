@@ -26,7 +26,7 @@ def cmsScript(driver,
         
         if cmsStored(driver, insurance, summary, memberName):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
-            cmsForm(driver, dates, autoSubmit)
+            cmsForm(driver, dates, autoSubmit, stopFlag)
 
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
@@ -77,7 +77,7 @@ def cmsStored(driver, insurance, summary, memberName):
     createClaimButton.click()
     return True
 
-def cmsForm(driver, dates, autoSubmit):
+def cmsForm(driver, dates, autoSubmit, stopFlag):
     driver.switch_to.default_content()
     iframe = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
@@ -179,6 +179,10 @@ def cmsForm(driver, dates, autoSubmit):
         toDay.send_keys(day)
         toYear.send_keys(year)
 
-    if autoSubmit:
+    if stopFlag.value:
+        stopFlag.value = False
+    elif autoSubmit:
         pass
-    return
+    else:
+        pass
+        # Wait for human input
