@@ -206,7 +206,9 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
     if stopFlag.value:
         stopFlag.value = False
     elif autoSubmit:
-        pass
+        submitButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
+        submitButton.click()
     else:
         pass
         # Wait for human input
