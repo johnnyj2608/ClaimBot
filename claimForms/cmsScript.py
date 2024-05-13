@@ -3,6 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from scheduleParser import getDatesFromWeekdays
+import time
 
 def cmsScript(driver, 
               insurance,
@@ -249,5 +250,5 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         submitButton.click()
     else:
         while driver.current_url == cms1500URL:
-            pass
+            time.sleep(1)
     return total
