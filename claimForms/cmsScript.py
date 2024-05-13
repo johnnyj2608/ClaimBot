@@ -26,8 +26,8 @@ def cmsScript(driver,
         
         if cmsStored(driver, insurance, summary, memberName):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
-            cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
-
+            total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
+        print(total)
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
@@ -237,6 +237,10 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         toDay.send_keys(day)
         toYear.send_keys(year)
 
+    totalField = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
+    total = totalField.get_attribute("value")
+
     if stopFlag.value:
         stopFlag.value = False
     elif autoSubmit:
@@ -246,3 +250,4 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
     else:
         while driver.current_url == cms1500URL:
             pass
+    return total
