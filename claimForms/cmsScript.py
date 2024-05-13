@@ -3,7 +3,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from scheduleParser import getDatesFromWeekdays
-import time
 
 def cmsScript(driver, 
               insurance,
@@ -242,8 +241,8 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         stopFlag.value = False
     elif autoSubmit:
         submitButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
         submitButton.click()
     else:
         while driver.current_url == cms1500URL:
-            time.sleep(1)
+            pass
