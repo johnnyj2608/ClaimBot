@@ -1,7 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from scheduleParser import getDatesFromWeekdays
 import time
@@ -26,15 +26,16 @@ def ubScript(driver,
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
         memberSearch = firstName+' '+lastName
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
-
+        
         if ubStored(driver, insurance, summary, memberSearch, memberSelect):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             total = ubForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
+        else:
+            print(f"Element with visible text '{memberSelect}' not found.")
 
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-        break # REMOVE AFTER TESTING
 
 def ubStored(driver, insurance, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'
@@ -55,9 +56,11 @@ def ubStored(driver, insurance, summary, memberSearch, memberSelect):
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ui-id-1"]'))
         )
-        options = WebDriverWait(driver, 10).until(
+        options = WebDriverWait(driver, 1).until(
             EC.presence_of_all_elements_located(('xpath', '//*[@id="ui-id-1"]/li/a'))
         )
+        if not options:
+            return False
 
         index = 0
         while True:
@@ -66,11 +69,31 @@ def ubStored(driver, insurance, summary, memberSearch, memberSelect):
                 patientsField.send_keys(Keys.RETURN)
                 break
             index += 1
-        print('found')
 
-    except IndexError:
-        print(f"Element with visible text '{memberSelect}' not found.")
+    except (IndexError, TimeoutException):
+        patientsField.clear()
         return False
+    
+    payerCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_PayerId"]'))
+    ))
+    billingProviderCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ProviderId"]'))
+    ))
+    templatesCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_TemplateId"]'))
+    ))    
+    physiciansCombo = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_AttendingPhysicianId"]'))
+    ))
+    createClaimButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="btnCreateClaim"]'))
+    )
+
+    templatesCombo.select_by_visible_text(insurance)
+
+    createClaimButton.click()
+    return True
     
 def ubForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
     pass

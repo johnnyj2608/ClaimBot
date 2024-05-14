@@ -28,9 +28,7 @@ def cmsScript(driver,
         if cmsStored(driver, insurance, summary, memberName):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
-        else:
-            print(f"Element with visible text '{memberName}' not found.")
-            
+
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
@@ -51,6 +49,7 @@ def cmsStored(driver, insurance, summary, memberName):
     try:
         patientsCombo.select_by_visible_text(memberName)
     except NoSuchElementException:
+        print(f"Element with visible text '{memberName}' not found.")
         return False
     
     payerCombo = Select(WebDriverWait(driver, 10).until(
