@@ -26,16 +26,15 @@ def ubScript(driver,
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
         memberSearch = firstName+' '+lastName
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
-        
+
         if ubStored(driver, insurance, summary, memberSearch, memberSelect):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             total = ubForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
-        else:
-            print(f"Element with visible text '{memberSelect}' not found.")
 
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+        break   # FOR TESTING
 
 def ubStored(driver, insurance, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'
@@ -53,14 +52,16 @@ def ubStored(driver, insurance, summary, memberSearch, memberSelect):
 
     try:
         patientsField.send_keys(memberSearch)
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '//*[@id="ui-id-1"]'))
+        results = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ui-id-1"]/li'))
         )
-        options = WebDriverWait(driver, 1).until(
+        if results.text == 'No results found':
+            raise Exception
+        options = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located(('xpath', '//*[@id="ui-id-1"]/li/a'))
         )
         if not options:
-            return False
+            raise Exception
 
         index = 0
         while True:
@@ -70,7 +71,8 @@ def ubStored(driver, insurance, summary, memberSearch, memberSelect):
                 break
             index += 1
 
-    except (IndexError, TimeoutException):
+    except (IndexError, TimeoutException, Exception):
+        print(f"Element with visible text '{memberSelect}' not found.")
         patientsField.clear()
         return False
     
