@@ -56,8 +56,6 @@ def validateExcelFile(excelFilePath):
         else:
             return [], {}
         
-        print(summaryValues)
-        
         members = []
         dataRange = memberSheet.range('B1:M1').expand('down').value
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])

@@ -139,7 +139,6 @@ class ClaimbotGUI:
         calendarWindow.grab_set()
         calendarWindow.attributes("-topmost", True)
 
-        
         x = self.root.winfo_rootx()
         if range == 'start':
             buttonWidget = self.startDatePickerButton
@@ -231,6 +230,9 @@ class ClaimbotGUI:
     
         if (endDate - startDate).days > 31:
             return False, "Range of dates are too large"
+        
+        if endDate > datetime.today():
+            return False, "End date is after today's date"
 
         return True, (startDate, endDate)
 
