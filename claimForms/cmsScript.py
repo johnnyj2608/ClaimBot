@@ -129,72 +129,73 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
             '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
     unitsDefault = unitsDefault.get_attribute("value")
 
-    if len(dates) > 12:
-        for rowNum in range(12, len(dates)):
-            addRowButton.click()
+    # If more than 12 dates
+    for rowNum in range(12, len(dates)):
+        addRowButton.click()
 
-            placeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-            
-            cptRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-            
-            modifierRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-            
-            diagnosisRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-            
-            chargeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-            
-            unitsRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-            
-            placeRow.send_keys(placeDefault)
-            cptRow.send_keys(cptDefault)
-            modifierRow.send_keys(modifierDefault)
-            diagnosisRow.send_keys(diagnosisDefault)
-            chargeRow.send_keys(chargeDefault)
-            unitsRow.send_keys(unitsDefault)
-    else:
-        for rowNum in range(11, len(dates)-1, -1):
-            placeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-            
-            cptRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-            
-            modifierRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-            
-            diagnosisRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-            
-            chargeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-            
-            unitsRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-            
-            placeRow.clear()
-            cptRow.clear()
-            modifierRow.clear()
-            diagnosisRow.clear()
-            chargeRow.clear()
-            unitsRow.clear()
+        placeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
+        
+        cptRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
+        
+        modifierRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
+        
+        diagnosisRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
+        
+        chargeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
+        
+        unitsRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
+        
+        placeRow.send_keys(placeDefault)
+        cptRow.send_keys(cptDefault)
+        modifierRow.send_keys(modifierDefault)
+        diagnosisRow.send_keys(diagnosisDefault)
+        chargeRow.send_keys(chargeDefault)
+        unitsRow.send_keys(unitsDefault)
+        
+    # If less than 12 dates
+    for rowNum in range(11, len(dates)-1, -1):
+        placeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
+        
+        cptRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
+        
+        modifierRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
+        
+        diagnosisRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
+        
+        chargeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
+        
+        unitsRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
+        
+        placeRow.clear()
+        cptRow.clear()
+        modifierRow.clear()
+        diagnosisRow.clear()
+        chargeRow.clear()
+        unitsRow.clear()
 
     for rowNum in range(len(dates)):
         curDate = dates[rowNum]
@@ -249,6 +250,7 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         submitButton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
         submitButton.click()
+        # Wait to see next page before returning
     else:
         while driver.current_url == cms1500URL:
             time.sleep(1)

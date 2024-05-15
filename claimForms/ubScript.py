@@ -149,6 +149,9 @@ def ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag):
     dxField.send_keys(dxCode)
     medicaidField.send_keys('N/A')
 
+    addRowButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="divEdit2"]/div/table[6]/tbody/tr[101]/td[7]/i[1]')))
+
     # SDC -----
 
     revCodeDefault_S = driver.find_element(
@@ -193,6 +196,60 @@ def ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag):
             'xpath', '//*[@id="TotalCharge2"]')
     chargeDefault_T = chargeDefault_T.get_attribute("value")
 
+    # If more than 12 * 2 dates
+    for rowNum in range(23, (len(dates)*2)+1):
+        addRowButton.click()
+
+        revCodeRow = driver.find_element(
+            'xpath', f'//*[@id="RevCode{rowNum}"]')
+
+        descRow = driver.find_element(
+            'xpath', f'//*[@id="Description{rowNum}"]')
+
+        rateRow = driver.find_element(
+            'xpath', f'//*[@id="Rate{rowNum}"]')
+
+        unitsRow = driver.find_element(
+            'xpath', f'//*[@id="Units{rowNum}"]')
+
+        chargeRow = driver.find_element(
+            'xpath', f'//*[@id="TotalCharge{rowNum}"]')
+        if rowNum % 2 == 1:
+            revCodeRow.send_keys(revCodeDefault_S)
+            descRow.send_keys(descDefault_S)
+            rateRow.send_keys(rateDefault_S)
+            unitsRow.send_keys(unitsDefault_S)
+            chargeRow.send_keys(chargeDefault_S)
+        else:
+            revCodeRow.send_keys(revCodeDefault_T)
+            descRow.send_keys(descDefault_T)
+            rateRow.send_keys(rateDefault_T)
+            unitsRow.send_keys(unitsDefault_T)
+            chargeRow.send_keys(chargeDefault_T)
+
+    # If less than 12 * 2 dates
+    for rowNum in range(22, len(dates)*2, -1):
+        revCodeRow = driver.find_element(
+                'xpath', f'//*[@id="RevCode{rowNum}"]')
+
+        descRow = driver.find_element(
+            'xpath', f'//*[@id="Description{rowNum}"]')
+
+        rateRow = driver.find_element(
+            'xpath', f'//*[@id="Rate{rowNum}"]')
+
+        unitsRow = driver.find_element(
+            'xpath', f'//*[@id="Units{rowNum}"]')
+
+        chargeRow = driver.find_element(
+            'xpath', f'//*[@id="TotalCharge{rowNum}"]')
+        
+        revCodeRow.clear()
+        descRow.clear()
+        rateRow.clear()
+        unitsRow.clear()
+        chargeRow.clear()
+
     for rowNum in range(len(dates)):
         curDate = dates[rowNum]
         month = curDate.month
@@ -226,56 +283,6 @@ def ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag):
             toMonth.send_keys(month)
             toDay.send_keys(day)
             toYear.send_keys(year)
-            
-            if rowNum > 22:
-                revCodeRow = driver.find_element(
-                    'xpath', f'//*[@id="RevCode{rowNum}"]')
-
-                descRow = driver.find_element(
-                    'xpath', f'//*[@id="Description{rowNum}"]')
-
-                rateRow = driver.find_element(
-                    'xpath', f'//*[@id="Rate{rowNum}"]')
-
-                unitsRow = driver.find_element(
-                    'xpath', f'//*[@id="Units{rowNum}"]')
-
-                chargeRow = driver.find_element(
-                    'xpath', f'//*[@id="TotalCharge{rowNum}"]')
-                if rowNum % 2 == 1:
-                    revCodeRow.send_keys(revCodeDefault_S)
-                    descRow.send_keys(descDefault_S)
-                    rateRow.send_keys(rateDefault_S)
-                    unitsRow.send_keys(unitsDefault_S)
-                    chargeRow.send_keys(chargeDefault_S)
-                else:
-                    revCodeRow.send_keys(revCodeDefault_T)
-                    descRow.send_keys(descDefault_T)
-                    rateRow.send_keys(rateDefault_T)
-                    unitsRow.send_keys(unitsDefault_T)
-                    chargeRow.send_keys(chargeDefault_T)
-
-    for rowNum in range(22, (len(dates)*2), -1):
-        revCodeRow = driver.find_element(
-                'xpath', f'//*[@id="RevCode{rowNum}"]')
-
-        descRow = driver.find_element(
-            'xpath', f'//*[@id="Description{rowNum}"]')
-
-        rateRow = driver.find_element(
-            'xpath', f'//*[@id="Rate{rowNum}"]')
-
-        unitsRow = driver.find_element(
-            'xpath', f'//*[@id="Units{rowNum}"]')
-
-        chargeRow = driver.find_element(
-            'xpath', f'//*[@id="TotalCharge{rowNum}"]')
-        
-        revCodeRow.clear()
-        descRow.clear()
-        rateRow.clear()
-        unitsRow.clear()
-        chargeRow.clear()
 
     removeRowButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="divEdit2"]/div/table[6]/tbody/tr[101]/td[7]/i[2]')))
