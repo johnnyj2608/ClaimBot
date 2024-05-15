@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from claimForms.cmsScript import cmsScript
 from claimForms.ubScript import ubScript
+from excel import recordClaims
 
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
@@ -28,7 +29,7 @@ def officeAllyAutomate(insurance,
                        statusLabel,
                        stopFlag, 
                        callback):
-    try:
+    try:     
         office_ally = 'https://www.officeally.com/secure_oa.asp'
 
         options = webdriver.ChromeOptions()
@@ -40,8 +41,8 @@ def officeAllyAutomate(insurance,
         
         login(driver, summary['username'], summary['password'])
         
-        if insurance == "Insurance":
-            cmsScript(driver,
+        if insurance != "Insurance":
+            submittedClaims = cmsScript(driver,
                       insurance,
                       summary,
                       members,
@@ -51,7 +52,7 @@ def officeAllyAutomate(insurance,
                       statusLabel,
                       stopFlag)
         else:
-            ubScript(driver,
+            submittedClaims = ubScript(driver,
                       insurance,
                       summary,
                       members,
@@ -60,6 +61,10 @@ def officeAllyAutomate(insurance,
                       autoSubmit,
                       statusLabel,
                       stopFlag)
+        
+        statusLabel.configure(text=f"Writing submitted claims to Excel")
+        statusLabel.update()
+        recordClaims(insurance, start, end, submittedClaims)
 
     except Exception as e:
         print("An error occurred:", str(e))

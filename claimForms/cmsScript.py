@@ -16,20 +16,24 @@ def cmsScript(driver,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
+    submittedClaims = []
     for member in members:
         if stopProcess(stopFlag): return
 
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
         memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
         
+        total = -1
         if cmsStored(driver, insurance, summary, memberName):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             dates = intersectVacations(dates, start, end)
             total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
 
+        submittedClaims.append([lastName, firstName, total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+    return submittedClaims
 
 def cmsStored(driver, insurance, summary, memberName):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage'

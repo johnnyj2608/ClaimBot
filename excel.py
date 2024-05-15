@@ -70,6 +70,9 @@ def getMembersByInsurance(excelFilePath, insurance):
     app.quit()
     return members
 
+def recordClaims(insurance, start, end, claims):
+    pass
+
 def closeExcelFile(excelFilePath):
     for proc in psutil.process_iter():
         try:

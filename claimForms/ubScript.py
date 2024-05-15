@@ -17,21 +17,25 @@ def ubScript(driver,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
+    submittedClaims = []
     for member in members:
         if stopProcess(stopFlag): return
 
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
         memberSearch = firstName+' '+lastName
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
-        print(memberSearch, stopFlag)
+
+        total = -1
         if ubStored(driver, insurance, summary, memberSearch, memberSelect):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             dates = intersectVacations(dates, start, end)
             total = ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag)
 
+        submittedClaims.append([lastName, firstName, total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+    return submittedClaims
 
 def ubStored(driver, insurance, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'
