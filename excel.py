@@ -5,8 +5,6 @@ import pandas as pd
 def validateExcelFile(excelFilePath):
     app = xw.App(visible=False)
 
-    closeExcelFile(excelFilePath)
-
     memberSheet = None
     summaryValues = {}
 
@@ -55,7 +53,7 @@ def validateExcelFile(excelFilePath):
             }
         else:
             return [], {}
-        
+
         members = []
         dataRange = memberSheet.range('B1:M1').expand('down').value
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
@@ -65,10 +63,10 @@ def validateExcelFile(excelFilePath):
         df['Vacation'] = pd.to_datetime(df['Vacation']).dt.date
         df.rename(columns={df.columns[10]: 'VacationEnd'}, inplace=True)
         df['VacationEnd'] = pd.to_datetime(df['VacationEnd']).dt.date
-        
+
         for index, row in df.iterrows():
             members.append(list(row))
-        
+
     except FileNotFoundError:
         print(f"File not found.")
     
@@ -77,13 +75,3 @@ def validateExcelFile(excelFilePath):
 
 def recordClaims(insurance, start, end, claims):
     pass
-
-def closeExcelFile(excelFilePath):
-    for proc in psutil.process_iter():
-        try:
-            if 'EXCEL.EXE' in proc.name():
-                for item in proc.open_files():
-                    if excelFilePath.lower() in item.path.lower():
-                        proc.kill()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
