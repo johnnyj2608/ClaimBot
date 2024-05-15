@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from claimForms.cmsScript import cmsScript
 from claimForms.ubScript import ubScript
+from claimForms.claimFormsHelper import stopProcess
 from excel import recordClaims
 
 def login(driver, username, password):
@@ -62,9 +63,12 @@ def officeAllyAutomate(insurance,
                       statusLabel,
                       stopFlag)
         
+        if stopProcess(stopFlag): return
         statusLabel.configure(text=f"Writing submitted claims to Excel")
         statusLabel.update()
         recordClaims(insurance, start, end, submittedClaims)
+        statusLabel.configure(text=f"Completed automatic claim submission", text_color="green")
+        statusLabel.update()
 
     except Exception as e:
         print("An error occurred:", str(e))

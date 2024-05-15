@@ -24,6 +24,5 @@ def intersectVacations(dates, start, end):
 
 def stopProcess(stopFlag):
     if stopFlag.value:
-        print("Automation stopped")
         return True
     return False
