@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
-import claimForms.claimFormsHelper
+from claimForms.claimFormsHelper import *
 import time
 
 def ubScript(driver, 
@@ -28,8 +28,8 @@ def ubScript(driver,
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
 
         if ubStored(driver, insurance, summary, memberSearch, memberSelect):
-            dates = claimForms.getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
-            dates = claimForms.intersectVacations(dates, start, end)
+            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = intersectVacations(dates, start, end)
             total = ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag)
 
         completedMembers += 1

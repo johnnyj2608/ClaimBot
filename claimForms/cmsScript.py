@@ -2,7 +2,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
-import claimForms.claimFormsHelper
+from claimForms.claimFormsHelper import *
 import time
 
 def cmsScript(driver, 
@@ -26,8 +26,8 @@ def cmsScript(driver,
         memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
         
         if cmsStored(driver, insurance, summary, memberName):
-            dates = claimForms.getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
-            dates = claimForms.intersectVacations(dates, start, end)
+            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = intersectVacations(dates, start, end)
             total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
 
         completedMembers += 1
