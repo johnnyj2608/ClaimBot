@@ -232,7 +232,7 @@ class ClaimbotGUI:
         if endDate < startDate:
             return False, "End date set before start date"
     
-        if (endDate - startDate).days > 60:
+        if (endDate - startDate).days > 31:
             return False, "Range of dates are too large"
 
         return True, (startDate, endDate)
