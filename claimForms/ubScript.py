@@ -28,7 +28,8 @@ def ubScript(driver,
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
 
         if ubStored(driver, insurance, summary, memberSearch, memberSelect):
-            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = claimForms.getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = claimForms.intersectVacations(dates, start, end)
             total = ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag)
 
         completedMembers += 1

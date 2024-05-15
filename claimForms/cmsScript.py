@@ -26,7 +26,8 @@ def cmsScript(driver,
         memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
         
         if cmsStored(driver, insurance, summary, memberName):
-            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = claimForms.getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = claimForms.intersectVacations(dates, start, end)
             total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
 
         completedMembers += 1

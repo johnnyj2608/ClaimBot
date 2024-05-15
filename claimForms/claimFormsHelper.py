@@ -19,5 +19,5 @@ def getDatesFromWeekdays(startDate, endDate, weekdays, authStart, authEnd):
         curDate += delta
     return dates
 
-def intersectVacations():
-    pass
+def intersectVacations(dates, start, end):
+    return dates
