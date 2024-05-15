@@ -2,7 +2,7 @@ import customtkinter as ctk
 from customtkinter import filedialog 
 from customtkinter import CTkToplevel
 from tkcalendar import Calendar
-from excel import validateExcelFile, getMembersByInsurance
+from excel import validateExcelFile
 import os
 from datetime import datetime
 from PIL import Image
@@ -29,7 +29,8 @@ class ClaimbotGUI:
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        self.summaryValues = {}
+        self.members = []
+        self.summary = {}
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -44,16 +45,13 @@ class ClaimbotGUI:
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Excel File", command=self.browseFolder)
         self.browseButton.grid(row=2, column=0, columnspan=5, pady=(0, 10), padx=10)
 
-        self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance Companies")
-        self.insuranceLabel.grid(row=3, column=0, columnspan=5, pady=(10, 0), padx=10, sticky="ew")
-
-        self.insuranceCombo = ctk.CTkComboBox(master=self.frame, values=list([]))
-        self.insuranceCombo.grid(row=4, column=0, columnspan=5, pady=0, padx=10)
-        self.insuranceCombo.set("")
-        self.insuranceCombo.configure(state="disabled")
+        self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance:")
+        self.insuranceLabel.grid(row=3, column=0, columnspan=2, pady=(5, 0), padx=5, sticky="e")
+        self.curInsurnaceLabel = ctk.CTkLabel(master=self.frame, text="None")
+        self.curInsurnaceLabel.grid(row=3, column=2, columnspan=3, pady=(5, 0), padx=5, sticky="w")
 
         self.startDateLabel = ctk.CTkLabel(master=self.frame, text="Start Date")
-        self.startDateLabel.grid(row=5, column=0, columnspan=5, pady=(10, 0), padx=10, sticky="ew")
+        self.startDateLabel.grid(row=5, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
 
         self.startMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.startMonthEntry.grid(row=6, column=0, pady=0, padx=1, sticky="e")
@@ -124,13 +122,12 @@ class ClaimbotGUI:
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
         if self.filePath:
-            sheets, self.summaryValues = validateExcelFile(self.filePath)
-            if sheets:
+            self.members, self.summary = validateExcelFile(self.filePath)
+            if self.members:
                 self.enableUserInteraction()
-                self.insuranceCombo.configure(values=sheets)
-                self.insuranceCombo.set(sheets[0])
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
+                self.curInsurnaceLabel.configure(text=self.summary['insurance'])
             else:
                 self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
                 self.disableUserInteraction()
@@ -253,9 +250,8 @@ class ClaimbotGUI:
         self.automateButton.configure(state="normal")
 
         thread = Thread(target = officeAllyAutomate, args=(
-            self.insuranceCombo.get(),
-            self.summaryValues, 
-            getMembersByInsurance(self.filePath, self.insuranceCombo.get()),
+            self.members,
+            self.summary, 
             response[0],
             response[1],
             self.autoSubmit.get(),
@@ -273,7 +269,6 @@ class ClaimbotGUI:
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
-        self.insuranceCombo.configure(state="disabled")
 
         self.startMonthEntry.configure(state="disabled")
         self.startDayEntry.configure(state="disabled")
@@ -290,7 +285,6 @@ class ClaimbotGUI:
 
     def enableUserInteraction(self):
         self.browseButton.configure(state="normal")
-        self.insuranceCombo.configure(state="normal")
 
         self.startMonthEntry.configure(state="normal")
         self.startDayEntry.configure(state="normal")
