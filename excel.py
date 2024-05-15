@@ -10,7 +10,7 @@ def validateExcelFile(excelFilePath):
 
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
-        summary = None
+        sumary = None
         
         for sheet in wb.sheets:
             if "summary" == sheet.name.lower():
@@ -75,3 +75,13 @@ def validateExcelFile(excelFilePath):
 
 def recordClaims(insurance, start, end, claims):
     pass
+
+# def closeExcelFile(excelFilePath):
+#     for proc in psutil.process_iter():
+#         try:
+#             if 'EXCEL.EXE' in proc.name():
+#                 for item in proc.open_files():
+#                     if excelFilePath.lower() in item.path.lower():
+#                         proc.kill()
+#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+#             pass
