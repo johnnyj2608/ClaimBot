@@ -2,7 +2,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
-from scheduleParser import getDatesFromWeekdays
+import claimForms.claimFormsHelper
 import time
 
 def cmsScript(driver, 
