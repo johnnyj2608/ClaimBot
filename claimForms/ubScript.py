@@ -35,7 +35,6 @@ def ubScript(driver,
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-        break   # FOR TESTING
 
 def ubStored(driver, insurance, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'
@@ -106,131 +105,93 @@ def ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag):
     )
     driver.switch_to.frame(iframe)
 
-    # member ID field: copy from 60. paste 3a & 8a
-    # medicaid ID
-    # 14 type 9
-    # 67 dx
-    # 6 statement period
-    # 63 medicaid
-
     memberIDField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_COBSubID1"]')))
     memberID = memberIDField.get_attribute("value")
     memberIDField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PatientControlNumber"]')))
-    memberIDField.send_keys(memberID)
+    memberIDField.send_keys(memberID)   # 3a
     memberIDField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PatientID"]')))
-    memberIDField.send_keys(memberID)
+    memberIDField.send_keys(memberID)   # 8a
 
-    authField = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_PRIOR_AUTH_NUMBER"]')))
-    authField.send_keys(authID)
+    statementFromMonth = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Month"]')))
+    statementFromDay = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Day"]')))
+    statementFromYear = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Year"]')))
+    
+    statementToMonth = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Month"]')))
+    statementToDay = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Day"]')))
+    statementToYear = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Year"]')))
 
+    typeField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TypeOfAdmission"]')))
+    medicaidField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_COBPriorAuthNum1"]')))
     dxField = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DIAGNOSIS_CODECMS0212_1"]')))
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PrimmaryDiagnosisCode"]')))
+    
+    statementFromMonth.send_keys(start.month)
+    statementFromDay.send_keys(start.day)
+    statementFromYear.send_keys(start.year)
+
+    statementToMonth.send_keys(end.month)
+    statementToDay.send_keys(end.day)
+    statementToYear.send_keys(end.year)
+
+    typeField.send_keys(9)
     dxField.clear()
     dxField.send_keys(dxCode)
+    medicaidField.send_keys('N/A')
 
-    addRowButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]')))
+    # SDC -----
 
-    placeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC0"]')
-    placeDefault = placeDefault.get_attribute("value")
+    revCodeDefault_S = driver.find_element(
+            'xpath', '//*[@id="RevCode1"]')
+    revCodeDefault_S = revCodeDefault_S.get_attribute("value")
 
-    cptDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE0"]')
-    cptDefault = cptDefault.get_attribute("value")
+    descDefault_S = driver.find_element(
+            'xpath', '//*[@id="Description1"]')
+    descDefault_S = descDefault_S.get_attribute("value")
 
-    modifierDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A0"]')
-    modifierDefault = modifierDefault.get_attribute("value")
+    rateDefault_S = driver.find_element(
+            'xpath', '//*[@id="Rate1"]')
+    rateDefault_S = rateDefault_S.get_attribute("value")
 
-    diagnosisDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE0"]')
-    diagnosisDefault = diagnosisDefault.get_attribute("value")
+    unitsDefault_S = driver.find_element(
+            'xpath', '//*[@id="Units1"]')
+    unitsDefault_S = unitsDefault_S.get_attribute("value")
 
-    chargeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG0"]')
-    chargeDefault = chargeDefault.get_attribute("value")
+    chargeDefault_S = driver.find_element(
+            'xpath', '//*[@id="TotalCharge1"]')
+    chargeDefault_S = chargeDefault_S.get_attribute("value")
 
-    unitsDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
-    unitsDefault = unitsDefault.get_attribute("value")
+    # TRANSPO -----
 
-    if len(dates) > 12:
-        for rowNum in range(12, len(dates)):
-            addRowButton.click()
+    revCodeDefault_T = driver.find_element(
+            'xpath', '//*[@id="RevCode2"]')
+    revCodeDefault_T = revCodeDefault_T.get_attribute("value")
 
-            placeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-            
-            cptRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-            
-            modifierRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-            
-            diagnosisRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-            
-            chargeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-            
-            unitsRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-            
-            placeRow.send_keys(placeDefault)
-            cptRow.send_keys(cptDefault)
-            modifierRow.send_keys(modifierDefault)
-            diagnosisRow.send_keys(diagnosisDefault)
-            chargeRow.send_keys(chargeDefault)
-            unitsRow.send_keys(unitsDefault)
-    else:
-        for rowNum in range(11, len(dates)-1, -1):
-            placeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-            
-            cptRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-            
-            modifierRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-            
-            diagnosisRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-            
-            chargeRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-            
-            unitsRow = driver.find_element(
-                'xpath', 
-                f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-            
-            placeRow.clear()
-            cptRow.clear()
-            modifierRow.clear()
-            diagnosisRow.clear()
-            chargeRow.clear()
-            unitsRow.clear()
+    descDefault_T = driver.find_element(
+            'xpath', '//*[@id="Description2"]')
+    descDefault_T = descDefault_T.get_attribute("value")
+
+    rateDefault_T = driver.find_element(
+            'xpath', '//*[@id="Rate2"]')
+    rateDefault_T = rateDefault_T.get_attribute("value")
+
+    unitsDefault_T = driver.find_element(
+            'xpath', '//*[@id="Units2"]')
+    unitsDefault_T = unitsDefault_T.get_attribute("value")
+
+    chargeDefault_T = driver.find_element(
+            'xpath', '//*[@id="TotalCharge2"]')
+    chargeDefault_T = chargeDefault_T.get_attribute("value")
 
     for rowNum in range(len(dates)):
         curDate = dates[rowNum]
@@ -238,54 +199,100 @@ def ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag):
         day = curDate.day
         year = curDate.year
 
-        fmMonth = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
+        rowNum = (rowNum * 2) + 1    # Index 1
+        for i in range(2):
+            rowNum += i
+            fmMonth = driver.find_element(
+                'xpath', f'//*[@id="FromDateMonth{rowNum}"]')
+            
+            fmDay = driver.find_element(
+                'xpath', f'//*[@id="FromDateDay{rowNum}"]')
+            
+            fmYear = driver.find_element(
+                'xpath', f'//*[@id="FromDateYear{rowNum}"]')
+            
+            toMonth = driver.find_element(
+                'xpath', f'//*[@id="ToDateMonth{rowNum}"]')
+            
+            toDay = driver.find_element(
+                'xpath', f'//*[@id="ToDateDay{rowNum}"]')
+            
+            toYear = driver.find_element(
+                'xpath', f'//*[@id="ToDateYear{rowNum}"]')
+            
+            fmMonth.send_keys(month)
+            fmDay.send_keys(day)
+            fmYear.send_keys(year)
+            toMonth.send_keys(month)
+            toDay.send_keys(day)
+            toYear.send_keys(year)
+            
+            if rowNum > 22:
+                revCodeRow = driver.find_element(
+                    'xpath', f'//*[@id="RevCode{rowNum}"]')
+
+                descRow = driver.find_element(
+                    'xpath', f'//*[@id="Description{rowNum}"]')
+
+                rateRow = driver.find_element(
+                    'xpath', f'//*[@id="Rate{rowNum}"]')
+
+                unitsRow = driver.find_element(
+                    'xpath', f'//*[@id="Units{rowNum}"]')
+
+                chargeRow = driver.find_element(
+                    'xpath', f'//*[@id="TotalCharge{rowNum}"]')
+                if rowNum % 2 == 1:
+                    revCodeRow.send_keys(revCodeDefault_S)
+                    descRow.send_keys(descDefault_S)
+                    rateRow.send_keys(rateDefault_S)
+                    unitsRow.send_keys(unitsDefault_S)
+                    chargeRow.send_keys(chargeDefault_S)
+                else:
+                    revCodeRow.send_keys(revCodeDefault_T)
+                    descRow.send_keys(descDefault_T)
+                    rateRow.send_keys(rateDefault_T)
+                    unitsRow.send_keys(unitsDefault_T)
+                    chargeRow.send_keys(chargeDefault_T)
+
+    for rowNum in range(22, (len(dates)*2), -1):
+        revCodeRow = driver.find_element(
+                'xpath', f'//*[@id="RevCode{rowNum}"]')
+
+        descRow = driver.find_element(
+            'xpath', f'//*[@id="Description{rowNum}"]')
+
+        rateRow = driver.find_element(
+            'xpath', f'//*[@id="Rate{rowNum}"]')
+
+        unitsRow = driver.find_element(
+            'xpath', f'//*[@id="Units{rowNum}"]')
+
+        chargeRow = driver.find_element(
+            'xpath', f'//*[@id="TotalCharge{rowNum}"]')
         
-        fmDay = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]'
-            )
-        
-        fmYear = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
-        
-        toMonth = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
-        
-        toDay = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]'
-            )
-        
-        toYear = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
-        
-        fmMonth.send_keys(month)
-        fmDay.send_keys(day)
-        fmYear.send_keys(year)
-        toMonth.send_keys(month)
-        toDay.send_keys(day)
-        toYear.send_keys(year)
+        revCodeRow.clear()
+        descRow.clear()
+        rateRow.clear()
+        unitsRow.clear()
+        chargeRow.clear()
+
+    removeRowButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="divEdit2"]/div/table[6]/tbody/tr[101]/td[7]/i[2]')))
+    removeRowButton.click()
 
     totalField = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TotalCharge"]')))
     total = totalField.get_attribute("value")
 
     if stopFlag.value:
         stopFlag.value = False
     elif autoSubmit:
         submitButton = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_btnSCUpdate"]')))
         submitButton.click()
+        # Wait to see next page before returning
     else:
-        while driver.current_url == cms1500URL:
+        while driver.current_url == ub04URL:
             time.sleep(1)
     return total
