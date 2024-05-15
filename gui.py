@@ -267,6 +267,7 @@ class ClaimbotGUI:
 
     def automationCallback(self):
         self.runningFlag = False
+        self.stopFlag.value = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 

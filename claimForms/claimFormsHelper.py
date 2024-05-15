@@ -21,3 +21,9 @@ def getDatesFromWeekdays(startDate, endDate, weekdays, authStart, authEnd):
 
 def intersectVacations(dates, start, end):
     return dates
+
+def stopProcess(stopFlag):
+    if stopFlag.value:
+        print("Automation stopped")
+        return True
+    return False

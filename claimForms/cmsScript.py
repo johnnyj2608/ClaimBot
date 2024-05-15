@@ -17,10 +17,7 @@ def cmsScript(driver,
     
     totalMembers, completedMembers = len(members), 0
     for member in members:
-        if stopFlag.value:
-            stopFlag.value = False
-            print("Automation stopped")
-            break
+        if stopProcess(stopFlag): return
 
         lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
         memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
@@ -80,6 +77,7 @@ def cmsStored(driver, insurance, summary, memberName):
     return True
 
 def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
+    if stopProcess(stopFlag): return
     cms1500URL = driver.current_url
     driver.switch_to.default_content()
     iframe = WebDriverWait(driver, 10).until(
@@ -131,6 +129,7 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
 
     # If more than 12 dates
     for rowNum in range(12, len(dates)):
+        if stopProcess(stopFlag): return
         addRowButton.click()
 
         placeRow = driver.find_element(
@@ -166,6 +165,7 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         
     # If less than 12 dates
     for rowNum in range(11, len(dates)-1, -1):
+        if stopProcess(stopFlag): return
         placeRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
@@ -198,6 +198,7 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         unitsRow.clear()
 
     for rowNum in range(len(dates)):
+        if stopProcess(stopFlag): return
         curDate = dates[rowNum]
         month = curDate.month
         day = curDate.day
@@ -244,9 +245,8 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
     total = totalField.get_attribute("value")
 
-    if stopFlag.value:
-        stopFlag.value = False
-    elif autoSubmit:
+    if stopProcess(stopFlag): return
+    if autoSubmit:
         submitButton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
         submitButton.click()
