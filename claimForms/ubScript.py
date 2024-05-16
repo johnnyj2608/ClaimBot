@@ -7,7 +7,6 @@ from claimForms.claimFormsHelper import *
 import time
 
 def ubScript(driver, 
-              insurance,
               summary, 
               members, 
               start, 
@@ -21,12 +20,12 @@ def ubScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
+        lastName, firstName, birthDate, medicaid, authID, dxCode, schedule, authStart, authEnd, vacaStart, vacaEnd, Exclude = member
         memberSearch = firstName+' '+lastName
         memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
 
         total = -1
-        if ubStored(driver, insurance, summary, memberSearch, memberSelect):
+        if ubStored(driver, summary['insurance'], summary, memberSearch, memberSelect):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             dates = intersectVacations(dates, start, end)
             total = ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag)

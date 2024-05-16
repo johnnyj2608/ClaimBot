@@ -6,7 +6,6 @@ from claimForms.claimFormsHelper import *
 import time
 
 def cmsScript(driver, 
-              insurance,
               summary, 
               members, 
               start, 
@@ -20,11 +19,13 @@ def cmsScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        lastName, firstName, birthDate, authID, dxCode, schedule, authStart, authEnd = member
+        print(member)
+
+        lastName, firstName, birthDate, medicaid, authID, dxCode, schedule, authStart, authEnd, vacaStart, vacaEnd, Exclude = member
         memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
         
         total = -1
-        if cmsStored(driver, insurance, summary, memberName):
+        if cmsStored(driver, summary['insurance'], summary, memberName):
             dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
             dates = intersectVacations(dates, start, end)
             total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
@@ -73,7 +74,7 @@ def cmsStored(driver, insurance, summary, memberName):
         EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
     )
     
-    renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
+    # renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
     facilitiesCombo.select_by_visible_text(summary['facilities'])
     templatesCombo.select_by_visible_text(insurance)
 

@@ -6,6 +6,8 @@ from claimForms.ubScript import ubScript
 from claimForms.claimFormsHelper import stopProcess
 from excel import recordClaims
 
+import traceback
+
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
@@ -30,7 +32,7 @@ def officeAllyAutomate(summary,
                        stopFlag, 
                        callback):
     try:     
-        office_ally = 'https://sc.officeally.com/'
+        office_ally = 'https://www.officeally.com/secure_oa.asp'
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
@@ -68,6 +70,7 @@ def officeAllyAutomate(summary,
 
     except Exception as e:
         print("An error occurred:", str(e))
+        traceback.print_exc()
         driver.quit()
         statusLabel.configure(text=f"Error has occurred", text_color="red")
         statusLabel.update()
