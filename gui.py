@@ -45,24 +45,36 @@ class ClaimbotGUI:
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Excel File", command=self.browseFolder)
         self.browseButton.grid(row=2, column=0, columnspan=5, pady=(0, 10), padx=10)
 
-        self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance:")
-        self.insuranceLabel.grid(row=3, column=0, columnspan=2, pady=(5, 0), padx=5, sticky="e")
-        self.curInsurnaceLabel = ctk.CTkLabel(master=self.frame, text="None")
-        self.curInsurnaceLabel.grid(row=3, column=2, columnspan=3, pady=(5, 0), padx=5, sticky="w")
+        # self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance:")
+        # self.insuranceLabel.grid(row=3, column=0, columnspan=2, pady=(5, 0), padx=5, sticky="e")
+        # self.curInsurnaceLabel = ctk.CTkLabel(master=self.frame, text="None")
+        # self.curInsurnaceLabel.grid(row=3, column=2, columnspan=5, pady=(5, 0), padx=5, sticky="w")
+
+        # self.memberRangelabel = ctk.CTkLabel(master=self.frame, text="Member Range")
+        # self.memberRangelabel.grid(row=4, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
+
+        # self.startMemberEntry = ctk.CTkEntry(master=self.frame, width=30)
+        # self.startMemberEntry.grid(row=5, column=0, pady=0, padx=0, sticky="e")
+
+        # self.memberHyphenlabel = ctk.CTkLabel(master=self.frame, text="to")
+        # self.memberHyphenlabel.grid(row=5, column=2, pady=0, padx=0, sticky="ew")
+
+        # self.endMemberEntry = ctk.CTkEntry(master=self.frame, width=30)
+        # self.endMemberEntry.grid(row=5, column=3, pady=0, padx=0, sticky="w")
 
         self.startDateLabel = ctk.CTkLabel(master=self.frame, text="Start Date")
-        self.startDateLabel.grid(row=5, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
+        self.startDateLabel.grid(row=6, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
 
         self.startMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
-        self.startMonthEntry.grid(row=6, column=0, pady=0, padx=1, sticky="e")
+        self.startMonthEntry.grid(row=7, column=0, pady=0, padx=1, sticky="e")
         self.startMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"), state="disabled")
 
         self.startDayEntry = ctk.CTkEntry(master=self.frame, width=30)
-        self.startDayEntry.grid(row=6, column=1, pady=0, padx=1, sticky="e")
+        self.startDayEntry.grid(row=7, column=1, pady=0, padx=1, sticky="e")
         self.startDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"), state="disabled")
 
         self.startYearEntry = ctk.CTkEntry(master=self.frame, width=45)
-        self.startYearEntry.grid(row=6, column=2, pady=0, padx=1, sticky="e")
+        self.startYearEntry.grid(row=7, column=2, pady=0, padx=1, sticky="e")
         self.startYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
 
         img = ctk.CTkImage(dark_image=Image.open(self.datePickerIcon))
@@ -73,21 +85,21 @@ class ClaimbotGUI:
                                                     width=32, 
                                                     height=32, 
                                                     state="disabled")
-        self.startDatePickerButton.grid(row=6, column=4, pady=0, padx=(5, 10), sticky="w")
+        self.startDatePickerButton.grid(row=7, column=4, pady=0, padx=(5, 10), sticky="w")
 
         self.endDateLabel = ctk.CTkLabel(master=self.frame, text="End Date")
-        self.endDateLabel.grid(row=7, column=0, columnspan=5, pady=(10, 0), padx=10, sticky="ew")
+        self.endDateLabel.grid(row=8, column=0, columnspan=5, pady=(10, 0), padx=10, sticky="ew")
 
         self.endMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
-        self.endMonthEntry.grid(row=8, column=0, pady=0, padx=1, sticky="e")
+        self.endMonthEntry.grid(row=9, column=0, pady=0, padx=1, sticky="e")
         self.endMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"), state="disabled")
 
         self.endDayEntry = ctk.CTkEntry(master=self.frame, width=30)
-        self.endDayEntry.grid(row=8, column=1, pady=0, padx=1, sticky="e")
+        self.endDayEntry.grid(row=9, column=1, pady=0, padx=1, sticky="e")
         self.endDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"), state="disabled")
 
         self.endYearEntry = ctk.CTkEntry(master=self.frame, width=45)
-        self.endYearEntry.grid(row=8, column=2, pady=0, padx=1, sticky="e")
+        self.endYearEntry.grid(row=9, column=2, pady=0, padx=1, sticky="e")
         self.endYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
 
         self.endDatePickerButton = ctk.CTkButton(self.frame, 
@@ -97,17 +109,17 @@ class ClaimbotGUI:
                                                     width=32, 
                                                     height=32, 
                                                     state="disabled")
-        self.endDatePickerButton.grid(row=8, column=4, pady=0, padx=(5, 10), sticky="w")
+        self.endDatePickerButton.grid(row=9, column=4, pady=0, padx=(5, 10), sticky="w")
 
         self.autoSubmit = ctk.BooleanVar()
         self.autoSubmitCheckbox = ctk.CTkCheckBox(master=self.frame, text="Enable auto submit", variable=self.autoSubmit, state="disabled")
-        self.autoSubmitCheckbox.grid(row=9, column=0, columnspan=5, pady=20, padx=50)
+        self.autoSubmitCheckbox.grid(row=10, column=0, columnspan=5, pady=20, padx=50)
 
         self.automateButton = ctk.CTkButton(master=self.frame, text="Automate", command=self.automate, state="disabled")
-        self.automateButton.grid(row=10, column=0, columnspan=5, pady=0, padx=10)
+        self.automateButton.grid(row=11, column=0, columnspan=5, pady=0, padx=10)
 
         self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
-        self.statusLabel.grid(row=13, column=0, columnspan=5, pady=0, padx=10)
+        self.statusLabel.grid(row=12, column=0, columnspan=5, pady=0, padx=10)
 
         self.frame.grid_columnconfigure((0, 4), weight=1)
 
@@ -127,7 +139,14 @@ class ClaimbotGUI:
                 self.enableUserInteraction()
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
-                self.curInsurnaceLabel.configure(text=self.summary['insurance'])
+                # self.curInsurnaceLabel.configure(text=self.summary['insurance'])
+
+                self.startMonthEntry.insert(0, datetime.now().month)
+                self.startDayEntry.insert(0, 1)
+                self.startYearEntry.insert(0, datetime.now().year)
+                self.endMonthEntry.insert(0, datetime.now().month)
+                self.endDayEntry.insert(0, datetime.now().day)
+                self.endYearEntry.insert(0, datetime.now().year)
             else:
                 self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
                 self.disableUserInteraction()
