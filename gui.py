@@ -141,11 +141,22 @@ class ClaimbotGUI:
                 self.folderLabel.configure(text=fileName, text_color="gray84")
                 # self.curInsurnaceLabel.configure(text=self.summary['insurance'])
 
+                self.startMonthEntry.delete(0, "end")
                 self.startMonthEntry.insert(0, datetime.now().month)
+
+                self.startDayEntry.delete(0, "end")
                 self.startDayEntry.insert(0, 1)
+
+                self.startYearEntry.delete(0, "end")
                 self.startYearEntry.insert(0, datetime.now().year)
+
+                self.endMonthEntry.delete(0, "end")
                 self.endMonthEntry.insert(0, datetime.now().month)
+
+                self.endDayEntry.delete(0, "end")
                 self.endDayEntry.insert(0, datetime.now().day)
+
+                self.endYearEntry.delete(0, "end")
                 self.endYearEntry.insert(0, datetime.now().year)
             else:
                 self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
