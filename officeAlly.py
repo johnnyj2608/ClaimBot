@@ -31,7 +31,7 @@ def officeAllyAutomate(insurance,
                        stopFlag, 
                        callback):
     try:     
-        office_ally = 'https://www.officeally.com/secure_oa.asp'
+        office_ally = 'https://sc.officeally.com/'
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
@@ -42,9 +42,8 @@ def officeAllyAutomate(insurance,
         
         login(driver, summary['username'], summary['password'])
         
-        if insurance != "Insurance":
+        if summary['form'] == "Professional (CMS)":
             submittedClaims = cmsScript(driver,
-                      insurance,
                       summary,
                       members,
                       start, 
@@ -54,7 +53,6 @@ def officeAllyAutomate(insurance,
                       stopFlag)
         else:
             submittedClaims = ubScript(driver,
-                      insurance,
                       summary,
                       members,
                       start, 
