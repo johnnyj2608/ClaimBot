@@ -14,13 +14,22 @@ def getDatesFromWeekdays(startDate, endDate, weekdays, authStart, authEnd):
     
     curDate = startDate
     while curDate <= endDate:
-        if curDate.weekday() in weekdays:
+        if curDate.weekday() + 1 in weekdays:
             dates.append(curDate)
         curDate += delta
     return dates
 
 def intersectVacations(dates, start, end):
-    return dates
+    if not start or not end:
+        return dates
+    
+    serviceDates = []
+    for date in dates:
+        if start <= date <= end:
+            continue
+        serviceDates.append(date)
+
+    return serviceDates
 
 def stopProcess(stopFlag):
     if stopFlag.value:

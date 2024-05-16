@@ -58,12 +58,12 @@ def validateExcelFile(excelFilePath):
         members = []
         dataRange = memberSheet.range('B1:M1').expand('down').value
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
-        df['Birth Date'] = pd.to_datetime(df['Birth Date']).dt.date
-        df['Start'] = pd.to_datetime(df['Start']).dt.date
-        df['End'] = pd.to_datetime(df['End']).dt.date
-        df['Vacation'] = pd.to_datetime(df['Vacation']).dt.date
+        df['Birth Date'] = pd.to_datetime(df['Birth Date'], errors='coerce')
+        df['Start'] = pd.to_datetime(df['Start'], errors='coerce')
+        df['End'] = pd.to_datetime(df['End'], errors='coerce')
+        df['Vacation'] = pd.to_datetime(df['Vacation'], errors='coerce')
         df.rename(columns={df.columns[10]: 'VacationEnd'}, inplace=True)
-        df['VacationEnd'] = pd.to_datetime(df['VacationEnd']).dt.date
+        df['VacationEnd'] = pd.to_datetime(df['VacationEnd'], errors='coerce')
 
         for _, row in df.iterrows():
             member = {

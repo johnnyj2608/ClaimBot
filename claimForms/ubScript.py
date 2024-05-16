@@ -16,6 +16,8 @@ def ubScript(driver,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
+    statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
+    statusLabel.update()
     submittedClaims = []
     for member in members:
         if stopProcess(stopFlag): return
@@ -26,7 +28,7 @@ def ubScript(driver,
         total = -1
         if ubStored(driver, summary, memberSearch, memberSelect):
             dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
-            dates = intersectVacations(dates, start, end)
+            dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
             total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
                            start, end, dates, autoSubmit, stopFlag)
 
@@ -213,9 +215,10 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
             toDay.send_keys(day)
             toYear.send_keys(year)
 
-    removeRowButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="divEdit2"]/div/table[6]/tbody/tr[101]/td[7]/i[2]')))
-    removeRowButton.click()
+    if len(dates) >= 11:
+        removeRowButton = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="divEdit2"]/div/table[6]/tbody/tr[101]/td[7]/i[2]')))
+        removeRowButton.click()
 
     totalField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TotalCharge"]')))
