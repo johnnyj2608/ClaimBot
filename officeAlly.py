@@ -21,8 +21,7 @@ def login(driver, username, password):
     passwordField.send_keys(password)
     loginButton.click()
 
-def officeAllyAutomate(insurance, 
-                       summary, 
+def officeAllyAutomate(summary, 
                        members, 
                        start, 
                        end, 
@@ -35,13 +34,12 @@ def officeAllyAutomate(insurance,
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
-
         driver = webdriver.Chrome(options=options)
         driver.get(office_ally)
         driver.maximize_window()
         
         login(driver, summary['username'], summary['password'])
-        
+
         if summary['form'] == "Professional (CMS)":
             submittedClaims = cmsScript(driver,
                       summary,
@@ -64,7 +62,7 @@ def officeAllyAutomate(insurance,
         if stopProcess(stopFlag): return
         statusLabel.configure(text=f"Writing submitted claims to Excel")
         statusLabel.update()
-        recordClaims(insurance, start, end, submittedClaims)
+        # recordClaims(insurance, start, end, submittedClaims)
         statusLabel.configure(text=f"Completed automatic claim submission", text_color="green")
         statusLabel.update()
 

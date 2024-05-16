@@ -282,8 +282,8 @@ class ClaimbotGUI:
         self.automateButton.configure(state="normal")
 
         thread = Thread(target = officeAllyAutomate, args=(
-            self.members,
             self.summary, 
+            self.members,
             response[0],
             response[1],
             self.autoSubmit.get(),
