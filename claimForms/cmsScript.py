@@ -22,10 +22,11 @@ def cmsScript(driver,
         memberName = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
         
         total = -1
-        if cmsStored(driver, summary['insurance'], summary, memberName):
+        if cmsStored(driver, summary, memberName):
             dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
             dates = intersectVacations(dates, start, end)
-            total = cmsForm(driver, member['dxCode'], member['authID'], dates, autoSubmit, stopFlag)
+            total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
+                            dates, autoSubmit, stopFlag)
 
         submittedClaims.append([member['lastName'], member['firstName'], total])
         completedMembers += 1
@@ -33,7 +34,7 @@ def cmsScript(driver,
         statusLabel.update()
     return submittedClaims
 
-def cmsStored(driver, insurance, summary, memberName):
+def cmsStored(driver, summary, memberName):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage'
     if driver.current_url != storedInfoURL:
         driver.get(storedInfoURL)
@@ -64,21 +65,19 @@ def cmsStored(driver, insurance, summary, memberName):
     facilitiesCombo = Select(WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ddlFacility"]'))
     ))
-    templatesCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlTemplate"]'))
-    ))
     createClaimButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
     )
     
-    # renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
+    payerCombo.select_by_visible_text(summary['payer'])
+    billingProviderCombo.select_by_visible_text(summary['billingProvider'])
+    renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
     facilitiesCombo.select_by_visible_text(summary['facilities'])
-    templatesCombo.select_by_visible_text(insurance)
 
     createClaimButton.click()
     return True
 
-def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
+def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
     if stopProcess(stopFlag): return
     cms1500URL = driver.current_url
     driver.switch_to.default_content()
@@ -93,46 +92,10 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
 
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DIAGNOSIS_CODECMS0212_1"]')))
-    dxField.clear()
     dxField.send_keys(dxCode)
 
-    addRowButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]')))
-
-    placeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC0"]')
-    placeDefault = placeDefault.get_attribute("value")
-
-    cptDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE0"]')
-    cptDefault = cptDefault.get_attribute("value")
-
-    modifierDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A0"]')
-    modifierDefault = modifierDefault.get_attribute("value")
-
-    diagnosisDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE0"]')
-    diagnosisDefault = diagnosisDefault.get_attribute("value")
-
-    chargeDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG0"]')
-    chargeDefault = chargeDefault.get_attribute("value")
-
-    unitsDefault = driver.find_element(
-            'xpath', 
-            '//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS0"]')
-    unitsDefault = unitsDefault.get_attribute("value")
-
-    # If more than 12 dates
-    for rowNum in range(12, len(dates)):
+    for rowNum in range(0, len(dates)):
         if stopProcess(stopFlag): return
-        addRowButton.click()
 
         placeRow = driver.find_element(
             'xpath', 
@@ -158,46 +121,12 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
         
-        placeRow.send_keys(placeDefault)
-        cptRow.send_keys(cptDefault)
-        modifierRow.send_keys(modifierDefault)
-        diagnosisRow.send_keys(diagnosisDefault)
-        chargeRow.send_keys(chargeDefault)
-        unitsRow.send_keys(unitsDefault)
-        
-    # If less than 12 dates
-    for rowNum in range(11, len(dates)-1, -1):
-        if stopProcess(stopFlag): return
-        placeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-        
-        cptRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-        
-        modifierRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-        
-        diagnosisRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-        
-        chargeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-        
-        unitsRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-        
-        placeRow.clear()
-        cptRow.clear()
-        modifierRow.clear()
-        diagnosisRow.clear()
-        chargeRow.clear()
-        unitsRow.clear()
+        placeRow.send_keys(summary['servicePlace'])
+        cptRow.send_keys(summary['cptCode'])
+        modifierRow.send_keys(summary['modifier'])
+        diagnosisRow.send_keys(summary['diagnosis'])
+        chargeRow.send_keys(summary['charges'])
+        unitsRow.send_keys(summary['units'])
 
     for rowNum in range(len(dates)):
         if stopProcess(stopFlag): return
@@ -255,5 +184,6 @@ def cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag):
         # Wait to see next page before returning
     else:
         while driver.current_url == cms1500URL:
+            if stopProcess(stopFlag): return
             time.sleep(1)
     return total

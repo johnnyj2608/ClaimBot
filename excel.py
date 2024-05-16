@@ -7,56 +7,51 @@ def validateExcelFile(excelFilePath):
 
     closeExcelFile(excelFilePath)
 
-    memberSheet = None
-    summaryValues = {}
-
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
-        sumary = None
+        
+        memberSheet = None
+        summarySheet = None
         
         for sheet in wb.sheets:
             if "summary" == sheet.name.lower():
-                summary = sheet
+                summarySheet = sheet
             elif "claim" in sheet.name.lower():
                 continue
             else: 
                 memberSheet = sheet
 
-        if summary and summary.range('B2').value == 'Professional (CMS)':
-            summaryValues = {
-                "form": summary.range('B2').value,
-                "insurance": summary.range('B3').value,
-                "username": summary.range('B4').value,
-                "password": summary.range('B5').value,
-                "payer": summary.range('B6').value,
-                "billingProvider": summary.range('B7').value,
-                "renderingProvider": summary.range('B10').value,
-                "facilities": summary.range('B11').value,
-                "servicePlace": summary.range('B12').value,
-                "cptCode": summary.range('B13').value,
-                "modifier": summary.range('B14').value,
-                "diagnosis": summary.range('B15').value,
-                "charges": summary.range('B16').value,
-                "units": summary.range('B17').value,
-            }
-        elif summary and summary.range('B2').value == 'Institutional (UB)':
-            summaryValues = {
-                "form": summary.range('B2').value,
-                "insurance": summary.range('B3').value,
-                "username": summary.range('B4').value,
-                "password": summary.range('B5').value,
-                "payer": summary.range('B6').value,
-                "billingProvider": summary.range('B7').value,
-                "physician": summary.range('B10').value,
-                "revenueCode": summary.range('B11').value,
-                "description": summary.range('B12').value,
-                "cptCodeSDC": summary.range('B13').value,
-                "cptCodeTrans": summary.range('B14').value,
-                "chargesSDC": summary.range('B15').value,
-                "chargesTrans": summary.range('B16').value,
-                "unitsSDC": summary.range('B17').value,
-                "unitsTrans": summary.range('B18').value,
-            }
+        if summarySheet.range('A1').value == 'Claimbot Summary':
+            summary = {
+                "form": summarySheet.range('B2').value,
+                "username": summarySheet.range('B3').value,
+                "password": summarySheet.range('B4').value,
+                "payer": summarySheet.range('B5').value,
+                "billingProvider": summarySheet.range('B6').value,
+                }
+            if summary['form'] == 'Professional (CMS)':
+                summary.update({
+                    "renderingProvider": summarySheet.range('B10').value,
+                    "facilities": summarySheet.range('B11').value,
+                    "servicePlace": int(summarySheet.range('B12').value),
+                    "cptCode": str(summarySheet.range('B13').value),
+                    "modifier": str(summarySheet.range('B14').value),
+                    "diagnosis": str(summarySheet.range('B15').value),
+                    "charges": "{:.2f}".format(summarySheet.range('B16').value),
+                    "units": int(summarySheet.range('B17').value),
+                })
+            elif summary['form'] == 'Institutional (UB)':
+                summary.update({
+                    "physician": summarySheet.range('B10').value,
+                    "revenueCode": int(summarySheet.range('B11').value),
+                    "description": str(summarySheet.range('B12').value),
+                    "cptCodeSDC": str(summarySheet.range('B13').value),
+                    "cptCodeTrans": str(summarySheet.range('B14').value),
+                    "chargesSDC": "{:.2f}".format(summarySheet.range('B15').value),
+                    "chargesTrans": "{:.2f}".format(summarySheet.range('B16').value),
+                    "unitsSDC": int(summarySheet.range('B17').value),
+                    "unitsTrans": int(summarySheet.range('B18').value),
+                })
         else:
             return [], {}
 
@@ -91,7 +86,7 @@ def validateExcelFile(excelFilePath):
         print(f"File not found.")
     
     app.quit()
-    return members, summaryValues
+    return members, summary
 
 def recordClaims(insurance, start, end, claims):
     pass
