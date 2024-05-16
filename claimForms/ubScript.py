@@ -22,17 +22,18 @@ def ubScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        memberSearch = member['firstName']+' '+member['lastName']
-        memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
+        if not member['exclude']:
+            memberSearch = member['firstName']+' '+member['lastName']
+            memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
-        total = -1
-        if ubStored(driver, summary, memberSearch, memberSelect):
-            dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
-            dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
-            total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
-                           start, end, dates, autoSubmit, stopFlag)
+            total = -1
+            if ubStored(driver, summary, memberSearch, memberSelect):
+                dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
+                dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
+                total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
+                            start, end, dates, autoSubmit, stopFlag)
 
-        submittedClaims.append([member['lastName'], member['firstName'], total])
+            submittedClaims.append([member['lastName'], member['firstName'], total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()

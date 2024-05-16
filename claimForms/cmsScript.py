@@ -21,16 +21,17 @@ def cmsScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        memberName = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
-        
-        total = -1
-        if cmsStored(driver, summary, memberName):
-            dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
-            dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
-            total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
-                            dates, autoSubmit, stopFlag)
+        if not member['exclude']:
+            memberName = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
+            
+            total = -1
+            if cmsStored(driver, summary, memberName):
+                dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
+                dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
+                total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
+                                dates, autoSubmit, stopFlag)
 
-        submittedClaims.append([member['lastName'], member['firstName'], total])
+            submittedClaims.append([member['lastName'], member['firstName'], total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
