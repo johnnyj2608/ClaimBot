@@ -20,17 +20,16 @@ def ubScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        lastName, firstName, birthDate, medicaid, authID, dxCode, schedule, authStart, authEnd, vacaStart, vacaEnd, Exclude = member
-        memberSearch = firstName+' '+lastName
-        memberSelect = lastName+', '+firstName+' ['+birthDate.strftime("%#m/%#d/%y")+']'
+        memberSearch = member['firstName']+' '+member['lastName']
+        memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
         total = -1
         if ubStored(driver, summary['insurance'], summary, memberSearch, memberSelect):
-            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
             dates = intersectVacations(dates, start, end)
-            total = ubForm(driver, dxCode, authID, start, end, dates, autoSubmit, stopFlag)
+            total = ubForm(driver, member['dxCode'], member['authID'], start, end, dates, autoSubmit, stopFlag)
 
-        submittedClaims.append([lastName, firstName, total])
+        submittedClaims.append([member['lastName'], member['firstName'], total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()

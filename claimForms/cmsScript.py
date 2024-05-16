@@ -19,18 +19,15 @@ def cmsScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        print(member)
-
-        lastName, firstName, birthDate, medicaid, authID, dxCode, schedule, authStart, authEnd, vacaStart, vacaEnd, Exclude = member
-        memberName = lastName+', '+firstName+' ['+birthDate.strftime("%m/%d/%Y")+']'
+        memberName = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
         
         total = -1
         if cmsStored(driver, summary['insurance'], summary, memberName):
-            dates = getDatesFromWeekdays(start, end, schedule, authStart, authEnd)
+            dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
             dates = intersectVacations(dates, start, end)
-            total = cmsForm(driver, dxCode, authID, dates, autoSubmit, stopFlag)
+            total = cmsForm(driver, member['dxCode'], member['authID'], dates, autoSubmit, stopFlag)
 
-        submittedClaims.append([lastName, firstName, total])
+        submittedClaims.append([member['lastName'], member['firstName'], total])
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()

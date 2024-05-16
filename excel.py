@@ -70,8 +70,22 @@ def validateExcelFile(excelFilePath):
         df.rename(columns={df.columns[10]: 'VacationEnd'}, inplace=True)
         df['VacationEnd'] = pd.to_datetime(df['VacationEnd']).dt.date
 
-        for index, row in df.iterrows():
-            members.append(list(row))
+        for _, row in df.iterrows():
+            member = {
+                'lastName': row['Last Name'],
+                'firstName': row['First Name'],
+                'birthDate': row['Birth Date'],
+                'medicaid': row['Medicaid'],
+                'authID': row['Auth #'],
+                'dxCode': row['Dx Code'],
+                'schedule': row['Schedule'],
+                'authStart': row['Start'],
+                'authEnd': row['End'],
+                'vacationStart': row['Vacation'],
+                'vacationEnd': row['VacationEnd'],
+                'exclude': row['Exclude']
+            }
+            members.append(member)
 
     except FileNotFoundError:
         print(f"File not found.")
