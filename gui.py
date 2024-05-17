@@ -45,25 +45,22 @@ class ClaimbotGUI:
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Excel File", command=self.browseFolder)
         self.browseButton.grid(row=2, column=0, columnspan=5, pady=(0, 10), padx=10)
 
-        # self.insuranceLabel = ctk.CTkLabel(master=self.frame, text="Insurance:")
-        # self.insuranceLabel.grid(row=3, column=0, columnspan=2, pady=(5, 0), padx=5, sticky="e")
-        # self.curInsurnaceLabel = ctk.CTkLabel(master=self.frame, text="None")
-        # self.curInsurnaceLabel.grid(row=3, column=2, columnspan=5, pady=(5, 0), padx=5, sticky="w")
+        self.memberRangelabel = ctk.CTkLabel(master=self.frame, text="Member Range")
+        self.memberRangelabel.grid(row=4, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
 
-        # self.memberRangelabel = ctk.CTkLabel(master=self.frame, text="Member Range")
-        # self.memberRangelabel.grid(row=4, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
+        self.startMemberEntry = ctk.CTkEntry(master=self.frame, width=40)
+        self.startMemberEntry.grid(row=5, column=0, columnspan=2, pady=0, padx=0, sticky="e")
+        self.startMemberEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
 
-        # self.startMemberEntry = ctk.CTkEntry(master=self.frame, width=30)
-        # self.startMemberEntry.grid(row=5, column=0, pady=0, padx=0, sticky="e")
+        self.memberHyphenlabel = ctk.CTkLabel(master=self.frame, text="to")
+        self.memberHyphenlabel.grid(row=5, column=2, columnspan=1, pady=0, padx=0, sticky="ew")
 
-        # self.memberHyphenlabel = ctk.CTkLabel(master=self.frame, text="to")
-        # self.memberHyphenlabel.grid(row=5, column=2, pady=0, padx=0, sticky="ew")
-
-        # self.endMemberEntry = ctk.CTkEntry(master=self.frame, width=30)
-        # self.endMemberEntry.grid(row=5, column=3, pady=0, padx=0, sticky="w")
+        self.endMemberEntry = ctk.CTkEntry(master=self.frame, width=40)
+        self.endMemberEntry.grid(row=5, column=3, columnspan=2, pady=0, padx=0, sticky="w")
+        self.endMemberEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
 
         self.startDateLabel = ctk.CTkLabel(master=self.frame, text="Start Date")
-        self.startDateLabel.grid(row=6, column=0, columnspan=5, pady=(5, 0), padx=10, sticky="ew")
+        self.startDateLabel.grid(row=6, column=0, columnspan=5, pady=(15, 0), padx=10, sticky="ew")
 
         self.startMonthEntry = ctk.CTkEntry(master=self.frame, width=30)
         self.startMonthEntry.grid(row=7, column=0, pady=0, padx=1, sticky="e")
@@ -139,7 +136,12 @@ class ClaimbotGUI:
                 self.enableUserInteraction()
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
-                # self.curInsurnaceLabel.configure(text=self.summary['insurance'])
+
+                self.startMemberEntry.delete(0, "end")
+                self.startMemberEntry.insert(0, 1)
+
+                self.endMemberEntry.delete(0, "end")
+                self.endMemberEntry.insert(0, len(self.members))
 
                 self.startMonthEntry.delete(0, "end")
                 self.startMonthEntry.insert(0, datetime.now().month)
@@ -229,6 +231,9 @@ class ClaimbotGUI:
         self.cal.grid_remove()
         self.cal.master.destroy()
 
+    def validateMember(self, val):
+        return val == "" or (val.isdigit() and len(val) <= 3)
+
     def validateMonth(self, val):
         return val == "" or (val.isdigit() and len(val) <= 2)
 
@@ -238,7 +243,14 @@ class ClaimbotGUI:
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
     
-    def validateDateRange(self):
+    def validateInputs(self, startMember, endMember):
+        if startMember == 0 or endMember == 0:
+            return False, "Member range can not be 0"
+        if startMember > endMember:
+            return False, "Member start range larger than end range"
+        if startMember > len(self.members) or endMember > len(self.members):
+            return False, "Member range larger than member count"
+        
         try:
             startMonth = int(self.startMonthEntry.get())
             startDay = int(self.startDayEntry.get())
@@ -271,7 +283,9 @@ class ClaimbotGUI:
             self.stopFlag.value = True
             self.automateButton.configure(text="Stopping...")
             return
-        valid, response = self.validateDateRange()
+        startMemberRange = int(self.startMemberEntry.get())
+        endMemberRange = int(self.endMemberEntry.get())
+        valid, response = self.validateInputs(startMemberRange, endMemberRange)
         if not valid:
             self.statusLabel.configure(text=response, text_color="red")
             return
@@ -283,7 +297,7 @@ class ClaimbotGUI:
 
         thread = Thread(target = officeAllyAutomate, args=(
             self.summary, 
-            self.members,
+            self.members[startMemberRange-1:endMemberRange],
             response[0],
             response[1],
             self.autoSubmit.get(),
@@ -302,6 +316,9 @@ class ClaimbotGUI:
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
 
+        self.startMemberEntry.configure(state="disabled")
+        self.endMemberEntry.configure(state="disabled")
+
         self.startMonthEntry.configure(state="disabled")
         self.startDayEntry.configure(state="disabled")
         self.startYearEntry.configure(state="disabled")
@@ -317,6 +334,9 @@ class ClaimbotGUI:
 
     def enableUserInteraction(self):
         self.browseButton.configure(state="normal")
+
+        self.startMemberEntry.configure(state="normal")
+        self.endMemberEntry.configure(state="normal")
 
         self.startMonthEntry.configure(state="normal")
         self.startDayEntry.configure(state="normal")
