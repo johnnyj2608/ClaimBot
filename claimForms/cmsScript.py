@@ -1,6 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from claimForms.claimFormsHelper import *
 import time
@@ -72,11 +73,15 @@ def cmsStored(driver, summary, memberName):
         EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
     )
     
-    payerCombo.select_by_visible_text(summary['payer'])
-    billingProviderCombo.select_by_visible_text(summary['billingProvider'])
-    renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
-    facilitiesCombo.select_by_visible_text(summary['facilities'])
-
+    try:
+        payerCombo.select_by_visible_text(summary['payer'])
+        billingProviderCombo.select_by_visible_text(summary['billingProvider'])
+        renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
+        facilitiesCombo.select_by_visible_text(summary['facilities'])
+    except NoSuchElementException:
+        print("Failed to select stored information")
+        return False
+    
     createClaimButton.click()
     return True
 
@@ -91,11 +96,14 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
 
     authField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_PRIOR_AUTH_NUMBER"]')))
-    authField.send_keys(authID)
-
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DIAGNOSIS_CODECMS0212_1"]')))
+    acceptAssignment = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_ACCEPT_SIGNATURE1"]')))
+    
+    authField.send_keys(authID)
     dxField.send_keys(dxCode)
+    acceptAssignment.click()
 
     for rowNum in range(0, len(dates)):
         if stopProcess(stopFlag): return
@@ -184,7 +192,12 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         submitButton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
         submitButton.click()
-        # Wait to see next page before returning
+        try:
+            WebDriverWait(driver, 3).until(
+                EC.visibility_of_element_located(('xpath', '//*[@id="validationDialog"]/ul')))
+            return -1
+        except TimeoutException:
+            pass
     else:
         while driver.current_url == cms1500URL:
             if stopProcess(stopFlag): return

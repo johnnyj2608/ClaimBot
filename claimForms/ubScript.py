@@ -2,6 +2,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from claimForms.claimFormsHelper import *
 import time
@@ -54,6 +55,7 @@ def ubStored(driver, summary, memberSearch, memberSelect):
     )
 
     try:
+        patientsField.clear()
         patientsField.send_keys(memberSearch)
         results = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ui-id-1"]/li'))
@@ -74,9 +76,8 @@ def ubStored(driver, summary, memberSearch, memberSelect):
                 break
             index += 1
 
-    except (IndexError, TimeoutException, Exception):
+    except (IndexError, Exception):
         print(f"Element with visible text '{memberSelect}' not found.")
-        patientsField.clear()
         return False
     
     payerCombo = Select(WebDriverWait(driver, 10).until(
@@ -92,9 +93,13 @@ def ubStored(driver, summary, memberSearch, memberSelect):
         EC.element_to_be_clickable(('xpath', '//*[@id="btnCreateClaim"]'))
     )
 
-    payerCombo.select_by_visible_text(summary['payer'])
-    billingProviderCombo.select_by_visible_text(summary['billingProvider'])
-    physiciansCombo.select_by_visible_text(summary['physician'])
+    try:
+        payerCombo.select_by_visible_text(summary['payer'])
+        billingProviderCombo.select_by_visible_text(summary['billingProvider'])
+        physiciansCombo.select_by_visible_text(summary['physician'])
+    except NoSuchElementException:
+        print("Failed to select stored information")
+        return False
 
     createClaimButton.click()
     return True
@@ -132,7 +137,9 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
     statementToYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Year"]')))
 
-    typeField = WebDriverWait(driver, 10).until(
+    billTypeField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_BillType"]')))
+    admissionTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TypeOfAdmission"]')))
     medicaidField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_COBPriorAuthNum1"]')))
@@ -147,7 +154,8 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
     statementToDay.send_keys(end.day)
     statementToYear.send_keys(end.year)
 
-    typeField.send_keys(9)
+    billTypeField.send_keys('000')
+    admissionTypeField.send_keys(9)
     dxField.send_keys(dxCode)
     medicaidField.send_keys(medicaid)
 
@@ -230,7 +238,12 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
         submitButton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_btnSCUpdate"]')))
         submitButton.click()
-        # Wait to see next page before returning
+        try:
+            WebDriverWait(driver, 3).until(
+                EC.visibility_of_element_located(('xpath', '//*[@id="validationDialog"]/ul')))
+            return -1
+        except TimeoutException:
+            pass
     else:
         while driver.current_url == ub04URL:
             if stopProcess(stopFlag): return
