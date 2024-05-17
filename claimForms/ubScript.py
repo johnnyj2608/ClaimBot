@@ -154,7 +154,7 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
     statementToDay.send_keys(end.day)
     statementToYear.send_keys(end.year)
 
-    billTypeField.send_keys('000')
+    billTypeField.send_keys(summary['billType'])
     admissionTypeField.send_keys(9)
     dxField.send_keys(dxCode)
     medicaidField.send_keys(medicaid)

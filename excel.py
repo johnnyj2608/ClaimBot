@@ -31,29 +31,39 @@ def validateExcelFile(excelFilePath):
                 }
             if summary['form'] == 'Professional (CMS)':
                 summary.update({
-                    "renderingProvider": summarySheet.range('B10').value,
-                    "facilities": summarySheet.range('B11').value,
-                    "servicePlace": int(summarySheet.range('B12').value),
-                    "cptCode": str(summarySheet.range('B13').value),
-                    "modifier": str(summarySheet.range('B14').value),
-                    "diagnosis": str(summarySheet.range('B15').value),
-                    "charges": "{:.2f}".format(summarySheet.range('B16').value),
-                    "units": int(summarySheet.range('B17').value),
+                    "renderingProvider": summarySheet.range('B9').value,
+                    "facilities": summarySheet.range('B10').value,
+                    "servicePlace": summarySheet.range('B11').value,
+                    "cptCode": summarySheet.range('B12').value,
+                    "modifier": summarySheet.range('B13').value,
+                    "diagnosis": summarySheet.range('B14').value,
+                    "charges": summarySheet.range('B15').value,
+                    "units": summarySheet.range('B16').value,
                 })
             elif summary['form'] == 'Institutional (UB)':
                 summary.update({
-                    "physician": summarySheet.range('B10').value,
-                    "revenueCode": int(summarySheet.range('B11').value),
-                    "description": str(summarySheet.range('B12').value),
-                    "cptCodeSDC": str(summarySheet.range('B13').value),
-                    "cptCodeTrans": str(summarySheet.range('B14').value),
-                    "chargesSDC": "{:.2f}".format(summarySheet.range('B15').value),
-                    "chargesTrans": "{:.2f}".format(summarySheet.range('B16').value),
-                    "unitsSDC": int(summarySheet.range('B17').value),
-                    "unitsTrans": int(summarySheet.range('B18').value),
+                    "physician": summarySheet.range('B9').value,
+                    "billType": summarySheet.range('B10').value,
+                    "revenueCode": summarySheet.range('B11').value,
+                    "description": summarySheet.range('B12').value,
+                    "cptCodeSDC": summarySheet.range('B13').value,
+                    "cptCodeTrans": summarySheet.range('B14').value,
+                    "chargesSDC": summarySheet.range('B15').value,
+                    "chargesTrans": summarySheet.range('B16').value,
+                    "unitsSDC": summarySheet.range('B17').value,
+                    "unitsTrans": summarySheet.range('B18').value,
                 })
         else:
             return [], {}
+        
+        for key in summary:
+            try:
+                if key.startswith('charges'):
+                    summary[key] = "{:.2f}".format(summary[key])
+                else:
+                    summary[key] = "{:.0f}".format(summary[key])
+            except (ValueError, TypeError):
+                pass
 
         members = []
         dataRange = memberSheet.range('B1:M1').expand('down').value
