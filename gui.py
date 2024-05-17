@@ -327,6 +327,7 @@ class ClaimbotGUI:
             self.members[startMemberRange-1:endMemberRange],
             response[0],
             response[1],
+            self.filePath,
             self.autoSubmit.get(),
             self.autoDownloadPath,
             self.statusLabel,

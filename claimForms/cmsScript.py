@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from claimForms.claimFormsHelper import *
+from excel import recordClaims
 import time
 
 def cmsScript(driver, 
@@ -11,32 +12,51 @@ def cmsScript(driver,
               members, 
               start, 
               end, 
-              autoSubmit, 
+              filePath,
+              autoSubmit,
+              autoDownloadPath,
               statusLabel, 
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
     statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
     statusLabel.update()
-    submittedClaims = []
+
+    summaryStats = {
+        'members': totalMembers,
+        'submitted': 0,
+        'excluded': 0,
+        'total': 0,
+        'failed': 0
+    }
+
     for member in members:
         if stopProcess(stopFlag): return
 
         if not member['exclude']:
-            memberName = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
+            memberName = member['lastName']+', '+member['firstName']
+            memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
             total = -1
-            if cmsStored(driver, summary, memberName):
+            if cmsStored(driver, summary, memberSearch):
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
                                 dates, autoSubmit, stopFlag)
-
-            submittedClaims.append([member['lastName'], member['firstName'], total])
+            if total == -1:
+                summaryStats['failed'] += 1
+            else:
+                summaryStats['submitted'] += 1
+            recordClaims(filePath, 
+                         memberName,
+                         start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
+                         total)
+        else:
+            summaryStats['excluded'] += 1
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-    return submittedClaims
+    return summaryStats
 
 def cmsStored(driver, summary, memberName):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage'
@@ -105,8 +125,13 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
     dxField.send_keys(dxCode)
     acceptAssignment.click()
 
-    for rowNum in range(0, len(dates)):
+    addRowButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]')))
+
+    for rowNum in range(len(dates)):
         if stopProcess(stopFlag): return
+        if rowNum > 11:
+            addRowButton.click()
 
         placeRow = driver.find_element(
             'xpath', 

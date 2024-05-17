@@ -1,6 +1,7 @@
 import xlwings as xw
 import psutil
 import pandas as pd
+from datetime import date
 
 def validateExcelFile(excelFilePath):
     app = xw.App(visible=False)
@@ -98,8 +99,31 @@ def validateExcelFile(excelFilePath):
     app.quit()
     return members, summary
 
-def recordClaims(insurance, start, end, claims):
-    pass
+def recordClaims(filePath, name, range, total):
+    app = xw.App(visible=False)
+    today = date.today().strftime("%#m/%#d/%y")
+
+    closeExcelFile(filePath)
+
+    try:
+        wb = xw.Book(filePath, ignore_read_only_recommended=True)
+        
+        claimsSheet = None
+        
+        for sheet in wb.sheets:
+            if "claims" == sheet.name.lower():
+                claimsSheet = sheet
+        
+        nextRow = claimsSheet.range("A"+str(claimsSheet.cells.last_cell.row)).end("up").row + 1
+        claimsSheet.range("A" + str(nextRow)).value = [today, name, range, total]
+
+        wb.save()
+        wb.close()
+
+    except Exception as e:
+        print("Error:", e)
+    finally:
+        app.quit()
 
 def closeExcelFile(excelFilePath):
     for proc in psutil.process_iter():

@@ -5,6 +5,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from claimForms.claimFormsHelper import *
+from excel import recordClaims
 import time
 
 def ubScript(driver, 
@@ -12,18 +13,29 @@ def ubScript(driver,
               members, 
               start, 
               end, 
-              autoSubmit, 
+              filePath,
+              autoSubmit,
+              autoDownloadPath,
               statusLabel, 
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
     statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
     statusLabel.update()
-    submittedClaims = []
+    
+    summaryStats = {
+        'members': totalMembers,
+        'submitted': 0,
+        'excluded': 0,
+        'total': 0,
+        'failed': 0
+    }
+
     for member in members:
         if stopProcess(stopFlag): return
 
         if not member['exclude']:
+            memberName = member['lastName']+', '+member['firstName']
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
@@ -34,11 +46,20 @@ def ubScript(driver,
                 total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
                             start, end, dates, autoSubmit, stopFlag)
 
-            submittedClaims.append([member['lastName'], member['firstName'], total])
+            if total == -1:
+                summaryStats['failed'] += 1
+            else:
+                summaryStats['submitted'] += 1
+            recordClaims(filePath, 
+                         memberName,
+                         start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
+                         total)
+        else:
+            summaryStats['excluded'] += 1
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-    return submittedClaims
+    return summaryStats
 
 def ubStored(driver, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'

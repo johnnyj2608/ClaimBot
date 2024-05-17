@@ -4,9 +4,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from claimForms.cmsScript import cmsScript
 from claimForms.ubScript import ubScript
 from claimForms.claimFormsHelper import stopProcess
-from excel import recordClaims
-
-import traceback
 
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
@@ -27,6 +24,7 @@ def officeAllyAutomate(summary,
                        members, 
                        start, 
                        end, 
+                       filePath,
                        autoSubmit,
                        autoDownloadPath,
                        statusLabel,
@@ -40,35 +38,38 @@ def officeAllyAutomate(summary,
         driver = webdriver.Chrome(options=options)
         driver.get(office_ally)
         driver.maximize_window()
-
+        
         login(driver, summary['username'], summary['password'])
 
         if summary['form'] == "Professional (CMS)":
-            submittedClaims = cmsScript(driver,
+            submissionSummary = cmsScript(driver,
                       summary,
                       members,
                       start, 
                       end,
+                      filePath,
                       autoSubmit,
+                      autoDownloadPath,
                       statusLabel,
                       stopFlag)
         else:
-            submittedClaims = ubScript(driver,
+            submissionSummary = ubScript(driver,
                       summary,
                       members,
                       start, 
                       end,
+                      filePath,
                       autoSubmit,
+                      autoDownloadPath,
                       statusLabel,
                       stopFlag)
-
+        print(submissionSummary)
         if stopProcess(stopFlag): return
         statusLabel.configure(text_color="green")
         statusLabel.update()
 
     except Exception as e:
         print("An error occurred:", str(e))
-        traceback.print_exc()
         driver.quit()
         statusLabel.configure(text=f"Error has occurred", text_color="red")
         statusLabel.update()
