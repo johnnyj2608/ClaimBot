@@ -28,6 +28,7 @@ def officeAllyAutomate(summary,
                        start, 
                        end, 
                        autoSubmit,
+                       autoDownloadPath,
                        statusLabel,
                        stopFlag, 
                        callback):
@@ -39,7 +40,7 @@ def officeAllyAutomate(summary,
         driver = webdriver.Chrome(options=options)
         driver.get(office_ally)
         driver.maximize_window()
-        
+
         login(driver, summary['username'], summary['password'])
 
         if summary['form'] == "Professional (CMS)":
@@ -60,7 +61,7 @@ def officeAllyAutomate(summary,
                       autoSubmit,
                       statusLabel,
                       stopFlag)
-        
+
         if stopProcess(stopFlag): return
         statusLabel.configure(text_color="green")
         statusLabel.update()
