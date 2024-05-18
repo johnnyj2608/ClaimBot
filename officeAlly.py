@@ -3,7 +3,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from claimForms.cmsScript import cmsScript
 from claimForms.ubScript import ubScript
-from claimForms.claimFormsHelper import stopProcess
 
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
@@ -20,6 +19,10 @@ def login(driver, username, password):
     passwordField.send_keys(password)
     loginButton.click()
 
+def formatPath(path):
+    if path:
+        return path.replace('/', '\\')
+
 def officeAllyAutomate(summary, 
                        members, 
                        start, 
@@ -35,6 +38,13 @@ def officeAllyAutomate(summary,
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
+        options.add_experimental_option('prefs', {
+            "download.default_directory": formatPath(autoDownloadPath), 
+            "download.prompt_for_download": False, 
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            })
+
         driver = webdriver.Chrome(options=options)
         driver.get(office_ally)
         driver.maximize_window()
@@ -64,7 +74,6 @@ def officeAllyAutomate(summary,
                       statusLabel,
                       stopFlag)
         print(submissionSummary)
-        if stopProcess(stopFlag): return
         statusLabel.configure(text_color="green")
         statusLabel.update()
 

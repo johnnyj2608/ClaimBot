@@ -6,6 +6,8 @@ from selenium.common.exceptions import NoSuchElementException
 from claimForms.claimFormsHelper import *
 from excel import recordClaims
 import time
+import os
+import glob
 
 def cmsScript(driver, 
               summary, 
@@ -14,7 +16,7 @@ def cmsScript(driver,
               end, 
               filePath,
               autoSubmit,
-              autoDownloadPath,
+              autoDownload,
               statusLabel, 
               stopFlag):
     
@@ -47,6 +49,7 @@ def cmsScript(driver,
                 summaryStats['failed'] += 1
             else:
                 summaryStats['submitted'] += 1
+                cmsDownload(driver, autoDownload, memberName, stopFlag)
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
@@ -216,15 +219,61 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
     if autoSubmit:
         submitButton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_btnSCUpdate"]')))
-        submitButton.click()
         try:
-            WebDriverWait(driver, 3).until(
-                EC.visibility_of_element_located(('xpath', '//*[@id="validationDialog"]/ul')))
-            return -1
+            submitButton.click()
         except TimeoutException:
-            pass
+            return -1
     else:
         while driver.current_url == cms1500URL:
             if stopProcess(stopFlag): return
             time.sleep(1)
     return total
+
+def cmsDownload(driver, autoDownload, memberName, stopFlag):
+    if not autoDownload:
+        return
+    pendingURL = 'https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Pending&Msg=RCL'
+    driver.get(pendingURL)
+
+    if stopProcess(stopFlag): return
+
+    claimID = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(('xpath', '//*[@id="tblClaims"]/tbody/tr[2]/td[4]')))
+    claimID = claimID.text
+
+    pdfURL = f'https://www.officeally.com/IPAReport/HCFA_PrintClaim.asp?ClaimID={claimID}&FormType=HCFA&Virtual=Y&Box33=B&CMS=0805'
+    driver.get(pdfURL)
+
+    if stopProcess(stopFlag): return
+
+    iframe = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '/html/body/iframe'))
+    )
+    driver.switch_to.frame(iframe)
+
+    openButton = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable(('xpath', '//*[@id="open-button"]'))
+    )
+    if stopProcess(stopFlag): return
+    openButton.click()
+
+    time.sleep(1)
+
+    pdfList = glob.glob(os.path.join(autoDownload, '*.pdf'))
+    renamedPDF = f'{memberName}.pdf'
+    renamedPDF = os.path.join(autoDownload, renamedPDF)
+
+    if renamedPDF in pdfList:
+        suffix = 2
+        while True:
+            renamedPDF = f'{memberName} {suffix}.pdf'
+            renamedPDF = os.path.join(autoDownload, renamedPDF)
+            if renamedPDF not in pdfList:
+                break
+            suffix += 1
+
+    else:
+        renamedPDF = os.path.join(autoDownload, renamedPDF)
+
+    curPDF = max(pdfList, key=os.path.getctime)
+    os.rename(curPDF, renamedPDF)
