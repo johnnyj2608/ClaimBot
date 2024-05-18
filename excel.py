@@ -46,13 +46,14 @@ def validateExcelFile(excelFilePath):
                     "physician": summarySheet.range('B9').value,
                     "billType": summarySheet.range('B10').value,
                     "revenueCode": summarySheet.range('B11').value,
-                    "description": summarySheet.range('B12').value,
+                    "descriptionSDC": summarySheet.range('B12').value,
                     "cptCodeSDC": summarySheet.range('B13').value,
-                    "cptCodeTrans": summarySheet.range('B14').value,
-                    "chargesSDC": summarySheet.range('B15').value,
-                    "chargesTrans": summarySheet.range('B16').value,
-                    "unitsSDC": summarySheet.range('B17').value,
-                    "unitsTrans": summarySheet.range('B18').value,
+                    "chargesSDC": summarySheet.range('B14').value,
+                    "unitsSDC": summarySheet.range('B15').value,
+                    "descriptionTrans": summarySheet.range('B16').value,
+                    "cptCodeTrans": summarySheet.range('B17').value,
+                    "chargesTrans": summarySheet.range('B18').value,
+                    "unitsTrans": summarySheet.range('B19').value,
                 })
         else:
             return [], {}

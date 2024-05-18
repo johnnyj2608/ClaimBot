@@ -200,15 +200,15 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
 
         chargeRow = driver.find_element(
             'xpath', f'//*[@id="TotalCharge{rowNum}"]')
+        
+        revCodeRow.send_keys(summary['revenueCode'])
         if rowNum % 2 == 1:
-            revCodeRow.send_keys(summary['revenueCode'])
-            descRow.send_keys(summary['description'])
+            descRow.send_keys(summary['descriptionSDC'])
             cptRow.send_keys(summary['cptCodeSDC'])
             unitsRow.send_keys(summary['unitsSDC'])
             chargeRow.send_keys(summary['chargesSDC'])
         else:
-            revCodeRow.send_keys(summary['revenueCode'])
-            descRow.send_keys(summary['description'])
+            descRow.send_keys(summary['descriptionTrans'])
             cptRow.send_keys(summary['cptCodeTrans'])
             unitsRow.send_keys(summary['unitsTrans'])
             chargeRow.send_keys(summary['chargesTrans'])
