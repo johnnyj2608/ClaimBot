@@ -44,7 +44,8 @@ def cmsScript(driver,
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
-                                dates, autoSubmit, stopFlag)
+                                start, end, dates, autoSubmit, stopFlag)
+            if stopProcess(stopFlag): return
             if total == -1:
                 summaryStats['failed'] += 1
             else:
@@ -70,45 +71,42 @@ def cmsStored(driver, summary, memberName):
         )
         driver.switch_to.frame(iframe)
 
-    patientsCombo = Select(WebDriverWait(driver, 10).until(
+    try:
+        patientsCombo = Select(WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ddlPatient"]'))
     ))
-    
-    try:
         patientsCombo.select_by_visible_text(memberName)
     except NoSuchElementException:
         print(f"Element with visible text '{memberName}' not found.")
         return False
     
-    payerCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlPayer"]'))
-    ))
-    billingProviderCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlBillingProvider"]'))
-    ))
-    renderingProviderCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlRenderingProvider"]'))
-    ))
-    facilitiesCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlFacility"]'))
-    ))
-    createClaimButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]'))
-    )
-    
     try:
+        payerCombo = Select(WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ddlPayer"]'))))
         payerCombo.select_by_visible_text(summary['payer'])
+
+        billingProviderCombo = Select(WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ddlBillingProvider"]'))))
         billingProviderCombo.select_by_visible_text(summary['billingProvider'])
+        
+        renderingProviderCombo = Select(WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ddlRenderingProvider"]'))))
         renderingProviderCombo.select_by_visible_text(summary['renderingProvider'])
+
+        facilitiesCombo = Select(WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ddlFacility"]'))))
         facilitiesCombo.select_by_visible_text(summary['facilities'])
+
     except NoSuchElementException:
         print("Failed to select stored information")
         return False
     
+    createClaimButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="Button2"]')))
     createClaimButton.click()
     return True
 
-def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
+def cmsForm(driver, summary, authID, dxCode, start, end, dates, autoSubmit, stopFlag):
     if stopProcess(stopFlag): return
     cms1500URL = driver.current_url
     driver.switch_to.default_content()
@@ -117,16 +115,53 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
     )
     driver.switch_to.frame(iframe)
 
+    outsideLab = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_OUTSIDE_LAB2"]')))
+    outsideLab.click()
+
     authField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_PRIOR_AUTH_NUMBER"]')))
+    authField.send_keys(authID)
+
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DIAGNOSIS_CODECMS0212_1"]')))
+    dxField.send_keys(dxCode)
+
     acceptAssignment = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_ACCEPT_SIGNATURE1"]')))
-    
-    authField.send_keys(authID)
-    dxField.send_keys(dxCode)
     acceptAssignment.click()
+
+    statementFromMonth = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Month"]')))
+    statementFromMonth.send_keys(start.month)
+
+    statementFromDay = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Day"]')))
+    statementFromDay.send_keys(start.day)
+    
+    statementFromYear = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Year"]')))
+    statementFromYear.send_keys(start.year)
+    
+    statementToMonth = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Month"]')))
+    statementToMonth.send_keys(end.month)
+
+    statementToDay = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Day"]')))
+    statementToDay.send_keys(end.day)
+
+    statementToYear = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Year"]')))
+    statementToYear.send_keys(end.year)
+
+    copyPatient = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="lnkPatientCopy"]')))
+    copyPatient.click()
+
+    confirmPatient = WebDriverWait(driver, 100).until(
+        EC.element_to_be_clickable(('xpath', '/html/body/div[5]/div[3]/div/button[1]')))
+    confirmPatient.click()
 
     addRowButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]')))
@@ -139,34 +174,33 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         placeRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
+        placeRow.send_keys(summary['servicePlace'])
         
         cptRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
+        cptRow.send_keys(summary['cptCode'])
         
         modifierRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
+        modifierRow.send_keys(summary['modifier'])
         
         diagnosisRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
+        diagnosisRow.send_keys(summary['diagnosis'])
         
         chargeRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
+        chargeRow.send_keys(summary['charges'])
         
         unitsRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-        
-        placeRow.send_keys(summary['servicePlace'])
-        cptRow.send_keys(summary['cptCode'])
-        modifierRow.send_keys(summary['modifier'])
-        diagnosisRow.send_keys(summary['diagnosis'])
-        chargeRow.send_keys(summary['charges'])
         unitsRow.send_keys(summary['units'])
-
+        
     for rowNum in range(len(dates)):
         if stopProcess(stopFlag): return
         curDate = dates[rowNum]
@@ -176,40 +210,33 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
 
         fmMonth = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_MONTH{rowNum}"]')
+        fmMonth.send_keys(month)
         
         fmDay = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]'
-            )
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_DAY{rowNum}"]')
+        fmDay.send_keys(day)
         
         fmYear = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_FM_DATE_OF_SVC_YEAR{rowNum}"]')
+        fmYear.send_keys(year)
         
         toMonth = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]'
-            )
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_MONTH{rowNum}"]')
+        toMonth.send_keys(month)
         
         toDay = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]'
-            )
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_DAY{rowNum}"]')
+        toDay.send_keys(day)
         
         toYear = driver.find_element(
             'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]'
-            )
-        
-        fmMonth.send_keys(month)
-        fmDay.send_keys(day)
-        fmYear.send_keys(year)
-        toMonth.send_keys(month)
-        toDay.send_keys(day)
-        toYear.send_keys(year)
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]')
+        toYear.send_keys(year)   
 
     totalField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))

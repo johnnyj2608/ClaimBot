@@ -47,7 +47,7 @@ def ubScript(driver,
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
                             start, end, dates, autoSubmit, stopFlag)
-
+            if stopProcess(stopFlag): return
             if total == -1:
                 summaryStats['failed'] += 1
             else:
@@ -149,45 +149,50 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
 
     statementFromMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Month"]')))
+    statementFromMonth.send_keys(start.month)
+    
     statementFromDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Day"]')))
+    statementFromDay.send_keys(start.day)
+    
     statementFromYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Year"]')))
+    statementFromYear.send_keys(start.year)
     
     statementToMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Month"]')))
+    statementToMonth.send_keys(end.month)
+    
     statementToDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Day"]')))
+    statementToDay.send_keys(end.day)
+    
     statementToYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Year"]')))
+    statementToYear.send_keys(end.year)
 
     billTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_BillType"]')))
+    billTypeField.send_keys(summary['billType'])
+    
     admissionTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TypeOfAdmission"]')))
+    admissionTypeField.send_keys(9)
+    
     medicaidField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_COBPriorAuthNum1"]')))
+    medicaidField.send_keys(medicaid)
+    
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PrimmaryDiagnosisCode"]')))
-    
-    statementFromMonth.send_keys(start.month)
-    statementFromDay.send_keys(start.day)
-    statementFromYear.send_keys(start.year)
-
-    statementToMonth.send_keys(end.month)
-    statementToDay.send_keys(end.day)
-    statementToYear.send_keys(end.year)
-
-    billTypeField.send_keys(summary['billType'])
-    admissionTypeField.send_keys(9)
     dxField.send_keys(dxCode)
-    medicaidField.send_keys(medicaid)
-
+    
     for rowNum in range(1, (len(dates)*2)+1):
         if stopProcess(stopFlag): return
 
         revCodeRow = driver.find_element(
             'xpath', f'//*[@id="RevCode{rowNum}"]')
+        revCodeRow.send_keys(summary['revenueCode'])
 
         descRow = driver.find_element(
             'xpath', f'//*[@id="Description{rowNum}"]')
@@ -201,7 +206,6 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
         chargeRow = driver.find_element(
             'xpath', f'//*[@id="TotalCharge{rowNum}"]')
         
-        revCodeRow.send_keys(summary['revenueCode'])
         if rowNum % 2 == 1:
             descRow.send_keys(summary['descriptionSDC'])
             cptRow.send_keys(summary['cptCodeSDC'])
@@ -225,27 +229,26 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
             rowNum += i
             fmMonth = driver.find_element(
                 'xpath', f'//*[@id="FromDateMonth{rowNum}"]')
+            fmMonth.send_keys(month)
             
             fmDay = driver.find_element(
                 'xpath', f'//*[@id="FromDateDay{rowNum}"]')
+            fmDay.send_keys(day)
             
             fmYear = driver.find_element(
                 'xpath', f'//*[@id="FromDateYear{rowNum}"]')
+            fmYear.send_keys(year)
             
             toMonth = driver.find_element(
                 'xpath', f'//*[@id="ToDateMonth{rowNum}"]')
+            toMonth.send_keys(month)
             
             toDay = driver.find_element(
                 'xpath', f'//*[@id="ToDateDay{rowNum}"]')
+            toDay.send_keys(day)  
             
             toYear = driver.find_element(
                 'xpath', f'//*[@id="ToDateYear{rowNum}"]')
-            
-            fmMonth.send_keys(month)
-            fmDay.send_keys(day)
-            fmYear.send_keys(year)
-            toMonth.send_keys(month)
-            toDay.send_keys(day)
             toYear.send_keys(year)
 
     if len(dates) >= 11:
