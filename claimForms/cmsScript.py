@@ -283,7 +283,7 @@ def cmsDownload(driver, autoDownload, memberName, stopFlag):
     if stopProcess(stopFlag): return
     openButton.click()
 
-    time.sleep(1)
+    time.sleep(2)
 
     pdfList = glob.glob(os.path.join(autoDownload, '*.pdf'))
     renamedPDF = f'{memberName}.pdf'
