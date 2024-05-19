@@ -25,17 +25,16 @@ def cmsScript(driver,
     statusLabel.update()
 
     summaryStats = {
-        'members': totalMembers,
-        'submitted': 0,
-        'excluded': 0,
+        'members': 0,
+        'success': 0,
         'total': 0,
-        'failed': 0
     }
 
     for member in members:
         if stopProcess(stopFlag): return
 
         if not member['exclude']:
+            summaryStats['members'] += 1
             memberName = member['lastName']+', '+member['firstName']
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
@@ -46,10 +45,9 @@ def cmsScript(driver,
                 total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
                                 start, end, dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
-            if total == -1:
-                summaryStats['failed'] += 1
-            else:
-                summaryStats['submitted'] += 1
+            if total != -1:
+                summaryStats['success'] += 1
+                summaryStats['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
             recordClaims(filePath, 
                          memberName,
@@ -254,7 +252,8 @@ def cmsForm(driver, summary, authID, dxCode, start, end, dates, autoSubmit, stop
         while driver.current_url == cms1500URL:
             if stopProcess(stopFlag): return
             time.sleep(1)
-    return total
+
+    return float(total)
 
 def cmsDownload(driver, autoDownload, memberName, stopFlag):
     if not autoDownload:

@@ -26,17 +26,16 @@ def ubScript(driver,
     statusLabel.update()
     
     summaryStats = {
-        'members': totalMembers,
-        'submitted': 0,
-        'excluded': 0,
+        'members': 0,
+        'success': 0,
         'total': 0,
-        'failed': 0
     }
 
     for member in members:
         if stopProcess(stopFlag): return
 
         if not member['exclude']:
+            summaryStats['members'] += 1
             memberName = member['lastName']+', '+member['firstName']
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
@@ -48,10 +47,9 @@ def ubScript(driver,
                 total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
                             start, end, dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
-            if total == -1:
-                summaryStats['failed'] += 1
-            else:
-                summaryStats['submitted'] += 1
+            if total != -1:
+                summaryStats['success'] += 1
+                summaryStats['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
             recordClaims(filePath, 
                          memberName,
@@ -272,7 +270,7 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
         while driver.current_url == ub04URL:
             if stopProcess(stopFlag): return
             time.sleep(1)
-    return total
+    return float(total)
 
 def ubDownload(driver, autoDownload, memberName, stopFlag):
     if not autoDownload:

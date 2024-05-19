@@ -51,6 +51,7 @@ def officeAllyAutomate(summary,
         
         login(driver, summary['username'], summary['password'])
 
+        submissionSummary = None
         if summary['form'] == "Professional (CMS)":
             submissionSummary = cmsScript(driver,
                       summary,
@@ -73,7 +74,7 @@ def officeAllyAutomate(summary,
                       autoDownloadPath,
                       statusLabel,
                       stopFlag)
-        print(submissionSummary)
+
         statusLabel.configure(text_color="green")
         statusLabel.update()
 
@@ -83,4 +84,6 @@ def officeAllyAutomate(summary,
         statusLabel.configure(text=f"Error has occurred", text_color="red")
         statusLabel.update()
     finally:
-        callback()
+        pendingURL = 'https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Pending&Msg=RCL'
+        driver.get(pendingURL)
+        callback(submissionSummary)

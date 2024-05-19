@@ -25,14 +25,14 @@ class ClaimbotGUI:
         self.runningFlag = False
         self.prevDir = None
         self.autoDownloadPath = ''
+        self.members = []
+        self.summary = {}
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
         self.root.geometry(self.rightAlignWindow(self.root, 350, 525, self.root._get_window_scaling()))
+
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
-
-        self.members = []
-        self.summary = {}
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -139,8 +139,14 @@ class ClaimbotGUI:
         x = int(screen_width - width * scale_factor) - 50
         y = int((screen_height - height * scale_factor) / 2) - 100
         return f"{width}x{height}+{x}+{y}"
-
     
+    def centerWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
+        screen_width = Screen.winfo_screenwidth()
+        screen_height = Screen.winfo_screenheight()
+        x = int(((screen_width/2) - (width/2)) * scale_factor)
+        y = int(((screen_height/2) - (height/1.5)) * scale_factor)
+        return f"{width}x{height}+{x}+{y}"
+
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
         if self.filePath:
@@ -336,11 +342,43 @@ class ClaimbotGUI:
         
         thread.start()
 
-    def automationCallback(self):
+    def automationCallback(self, submissionSummary):
         self.runningFlag = False
         self.stopFlag.value = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
+
+        self.toggleSummary(submissionSummary)
+
+    def toggleSummary(self, summary):
+        if not summary:
+            return
+        summaryWindow = CTkToplevel()
+        summaryWindow.title('Claimbot Summary')
+        summaryWindow.geometry(self.centerWindow(summaryWindow, 300, 150, 0.9))
+        summaryWindow.grab_set()
+        summaryWindow.attributes("-topmost", True)
+
+        self.summaryFrame = ctk.CTkFrame(master=summaryWindow)
+        self.summaryFrame.pack(pady=10, padx=10, fill="both", expand=True)
+
+        font = ("Helvetica", 24)
+        successRatio = str(summary.get("success", 0))+' / '+str(summary.get("members", 0))
+        reimbursement = "{:.2f}".format(summary.get("total", 0))
+
+        membersLabel = ctk.CTkLabel(self.summaryFrame, text="Submitted:", font=font)
+        membersLabel.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        membersLabel = ctk.CTkLabel(self.summaryFrame, text=successRatio, font=font)
+        membersLabel.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+        submissionLabel = ctk.CTkLabel(self.summaryFrame, text="Total ($):", font=font)
+        submissionLabel.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        submissionLabel = ctk.CTkLabel(self.summaryFrame, text=reimbursement, font=font)
+        submissionLabel.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+        self.summaryFrame.grid_columnconfigure((0,1), weight=1)
+        self.summaryFrame.grid_rowconfigure(0, weight=1)
+        self.summaryFrame.grid_rowconfigure(1, weight=1)
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
