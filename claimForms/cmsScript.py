@@ -43,7 +43,7 @@ def cmsScript(driver,
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
-                                start, end, dates, autoSubmit, stopFlag)
+                                dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
                 summaryStats['success'] += 1
@@ -104,7 +104,7 @@ def cmsStored(driver, summary, memberName):
     createClaimButton.click()
     return True
 
-def cmsForm(driver, summary, authID, dxCode, start, end, dates, autoSubmit, stopFlag):
+def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
     if stopProcess(stopFlag): return
     cms1500URL = driver.current_url
     driver.switch_to.default_content()
@@ -131,27 +131,27 @@ def cmsForm(driver, summary, authID, dxCode, start, end, dates, autoSubmit, stop
 
     statementFromMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Month"]')))
-    statementFromMonth.send_keys(start.month)
+    statementFromMonth.send_keys(dates[0].month)
 
     statementFromDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Day"]')))
-    statementFromDay.send_keys(start.day)
+    statementFromDay.send_keys(dates[0].day)
     
     statementFromYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateInitialTreatment_Year"]')))
-    statementFromYear.send_keys(start.year)
+    statementFromYear.send_keys(dates[0].year)
     
     statementToMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Month"]')))
-    statementToMonth.send_keys(end.month)
+    statementToMonth.send_keys(dates[-1].month)
 
     statementToDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Day"]')))
-    statementToDay.send_keys(end.day)
+    statementToDay.send_keys(dates[-1].day)
 
     statementToYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_DateLastSeen_Year"]')))
-    statementToYear.send_keys(end.year)
+    statementToYear.send_keys(dates[-1].year)
 
     copyPatient = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="lnkPatientCopy"]')))

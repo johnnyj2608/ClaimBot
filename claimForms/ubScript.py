@@ -45,7 +45,7 @@ def ubScript(driver,
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
-                            start, end, dates, autoSubmit, stopFlag)
+                            dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
                 summaryStats['success'] += 1
@@ -126,7 +126,7 @@ def ubStored(driver, summary, memberSearch, memberSelect):
     createClaimButton.click()
     return True
     
-def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, stopFlag):
+def ubForm(driver, summary, dxCode, medicaid, dates, autoSubmit, stopFlag):
     if stopProcess(stopFlag): return
     ub04URL = driver.current_url
     driver.switch_to.default_content()
@@ -147,27 +147,27 @@ def ubForm(driver, summary, dxCode, medicaid, start, end, dates, autoSubmit, sto
 
     statementFromMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Month"]')))
-    statementFromMonth.send_keys(start.month)
+    statementFromMonth.send_keys(dates[0].month)
     
     statementFromDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Day"]')))
-    statementFromDay.send_keys(start.day)
+    statementFromDay.send_keys(dates[0].day)
     
     statementFromYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementFromDate_Year"]')))
-    statementFromYear.send_keys(start.year)
+    statementFromYear.send_keys(dates[0].year)
     
     statementToMonth = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Month"]')))
-    statementToMonth.send_keys(end.month)
+    statementToMonth.send_keys(dates[-1].month)
     
     statementToDay = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Day"]')))
-    statementToDay.send_keys(end.day)
+    statementToDay.send_keys(dates[-1].day)
     
     statementToYear = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_StatementToDate_Year"]')))
-    statementToYear.send_keys(end.year)
+    statementToYear.send_keys(dates[-1].year)
 
     billTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_BillType"]')))
