@@ -2,7 +2,7 @@ import customtkinter as ctk
 from customtkinter import filedialog 
 from customtkinter import CTkToplevel
 from tkcalendar import Calendar
-from excel import validateExcelFile
+from excel import validateExcelFile, ifExcelFileOpen
 import os
 from datetime import datetime
 from PIL import Image
@@ -308,6 +308,9 @@ class ClaimbotGUI:
         
         if endDate > datetime.today():
             return False, "End date is after today's date"
+        
+        if ifExcelFileOpen(self.folderLabel.cget("text")):
+            return False, "Must close selected Excel file"
 
         return True, (startDate, endDate)
 

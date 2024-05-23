@@ -6,8 +6,6 @@ from datetime import date
 def validateExcelFile(excelFilePath):
     app = xw.App(visible=False)
 
-    closeExcelFile(excelFilePath)
-
     try:
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
         
@@ -104,8 +102,6 @@ def recordClaims(filePath, name, range, total):
     app = xw.App(visible=False)
     today = date.today().strftime("%#m/%#d/%y")
 
-    closeExcelFile(filePath)
-
     try:
         wb = xw.Book(filePath, ignore_read_only_recommended=True)
         
@@ -126,12 +122,23 @@ def recordClaims(filePath, name, range, total):
     finally:
         app.quit()
 
-def closeExcelFile(excelFilePath):
+def ifExcelFileOpen(excelFile):
     for proc in psutil.process_iter():
         try:
             if 'EXCEL.EXE' in proc.name():
                 for item in proc.open_files():
-                    if excelFilePath.lower() in item.path.lower():
-                        proc.kill()
+                    if excelFile.lower() in item.path.lower():
+                        return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+    return False
+
+# def closeExcelFile(excelFile):
+#     for proc in psutil.process_iter():
+#         try:
+#             if 'EXCEL.EXE' in proc.name():
+#                 for item in proc.open_files():
+#                     if excelFile.lower() in item.path.lower():
+#                         proc.kill()
+#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+#             pass
