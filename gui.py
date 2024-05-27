@@ -180,8 +180,9 @@ class ClaimbotGUI:
                 self.endYearEntry.delete(0, "end")
                 self.endYearEntry.insert(0, datetime.now().year)
             else:
-                self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
+                self.folderLabel.configure(text="No members in template", text_color="red")
                 self.disableUserInteraction()
+                self.browseButton.configure(state="normal")
 
     def toggleCalendar(self, range):
         calendarWindow = CTkToplevel()
@@ -277,6 +278,11 @@ class ClaimbotGUI:
         return val == "" or (val.isdigit() and len(val) <= 4)
     
     def validateInputs(self, startMember, endMember):
+        try:
+            startMember = int(startMember)
+            endMember = int(endMember)
+        except:
+            return False, "Member range can not be empty"
         if startMember == 0 or endMember == 0:
             return False, "Member range can not be 0"
         if startMember > endMember:
@@ -319,8 +325,8 @@ class ClaimbotGUI:
             self.stopFlag.value = True
             self.automateButton.configure(text="Stopping...")
             return
-        startMemberRange = int(self.startMemberEntry.get())
-        endMemberRange = int(self.endMemberEntry.get())
+        startMemberRange = self.startMemberEntry.get()
+        endMemberRange = self.endMemberEntry.get()
         valid, response = self.validateInputs(startMemberRange, endMemberRange)
         if not valid:
             self.statusLabel.configure(text=response, text_color="red")

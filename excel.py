@@ -54,7 +54,7 @@ def validateExcelFile(excelFilePath):
                     "unitsTrans": summarySheet.range('B19').value,
                 })
         else:
-            return [], {}
+            return {}, {}
         
         for key in summary:
             try:
@@ -65,8 +65,9 @@ def validateExcelFile(excelFilePath):
             except (ValueError, TypeError):
                 pass
 
-        members = []
         dataRange = memberSheet.range('B1:M1').expand('down').value
+        if not any(isinstance(i, list) for i in dataRange):
+            return [], {}
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
         df['Birth Date'] = pd.to_datetime(df['Birth Date'], errors='coerce')
         df['Start'] = pd.to_datetime(df['Start'], errors='coerce')
@@ -75,6 +76,7 @@ def validateExcelFile(excelFilePath):
         df.rename(columns={df.columns[10]: 'VacationEnd'}, inplace=True)
         df['VacationEnd'] = pd.to_datetime(df['VacationEnd'], errors='coerce')
 
+        members = []
         for _, row in df.iterrows():
             member = {
                 'lastName': row['Last Name'],
