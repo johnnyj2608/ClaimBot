@@ -171,11 +171,31 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
     billTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_BillType"]')))
     billTypeField.send_keys(summary['billType'])
+
+    admissionDateMonth = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_DateAdmitted_Month"]')))
+    admissionDateMonth.send_keys(dates[0].month)
+
+    admissionDateDay = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_DateAdmitted_Day"]')))
+    admissionDateDay.send_keys(dates[0].day)
+
+    admissionDateYear = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_DateAdmitted_Year"]')))
+    admissionDateYear.send_keys(dates[0].year)
     
     admissionTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TypeOfAdmission"]')))
     admissionTypeField.send_keys(9)
-    
+
+    admissionSrcField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_AdmissionSource"]')))
+    admissionSrcField.send_keys(9)
+
+    statusField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PatientStatus"]')))
+    statusField.send_keys(30)
+
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PrimmaryDiagnosisCode"]')))
     dxField.send_keys(dxCode)
