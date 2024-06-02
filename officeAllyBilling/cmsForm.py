@@ -28,6 +28,7 @@ def cmsScript(driver,
         'members': 0,
         'success': 0,
         'total': 0,
+        'unsubmitted': [],
     }
 
     for member in members:
@@ -35,9 +36,13 @@ def cmsScript(driver,
 
         dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'], 
                                              member['vacationStart'], member['vacationEnd'])
+        memberName = member['lastName']+', '+member['firstName']
 
-        if not member['exclude'] and dates:
-            memberName = member['lastName']+', '+member['firstName']
+        if member['exclude']:
+            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' was excluded')
+        elif not dates:
+            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
+        else:
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
             total = -1
@@ -48,11 +53,13 @@ def cmsScript(driver,
                 summaryStats['success'] += 1
                 summaryStats['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
+            else:
+                summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-            
+
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()

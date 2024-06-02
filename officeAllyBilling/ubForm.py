@@ -29,6 +29,7 @@ def ubScript(driver,
         'members': 0,
         'success': 0,
         'total': 0,
+        'unsubmitted': [],
     }
 
     for member in members:
@@ -36,9 +37,13 @@ def ubScript(driver,
 
         dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'], 
                                              member['vacationStart'], member['vacationEnd'])
+        memberName = member['lastName']+', '+member['firstName']
 
-        if not member['exclude'] and dates:
-            memberName = member['lastName']+', '+member['firstName']
+        if member['exclude']:
+            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' was excluded')
+        elif not dates:
+            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
+        else:
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
@@ -50,6 +55,8 @@ def ubScript(driver,
                 summaryStats['success'] += 1
                 summaryStats['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
+            else:
+                summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),

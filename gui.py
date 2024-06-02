@@ -379,12 +379,12 @@ class ClaimbotGUI:
             return
         summaryWindow = CTkToplevel()
         summaryWindow.title('Claimbot Summary')
-        summaryWindow.geometry(self.centerWindow(summaryWindow, 300, 150, 0.9))
+        summaryWindow.geometry(self.centerWindow(summaryWindow, 400, 200, 0.9))
         summaryWindow.grab_set()
         summaryWindow.attributes("-topmost", True)
 
         self.summaryFrame = ctk.CTkFrame(master=summaryWindow)
-        self.summaryFrame.pack(pady=10, padx=10, fill="both", expand=True)
+        self.summaryFrame.pack(pady=(10, 5), padx=10, fill="both", expand=True)
 
         font = ("Helvetica", 24)
         successRatio = str(summary.get("success", 0))+' / '+str(summary.get("members", 0))
@@ -403,6 +403,19 @@ class ClaimbotGUI:
         self.summaryFrame.grid_columnconfigure((0,1), weight=1)
         self.summaryFrame.grid_rowconfigure(0, weight=1)
         self.summaryFrame.grid_rowconfigure(1, weight=1)
+
+        font = ("Helvetica", 14)
+        unsubmittedLabel = ctk.CTkLabel(master=summaryWindow, text="Unsubmitted Members:", font=font, anchor="w")
+        unsubmittedLabel.pack(padx=10, pady=(5, 0), fill="x")
+
+        self.scrollFrame = ctk.CTkScrollableFrame(master=summaryWindow)
+        self.scrollFrame.pack(pady=(0, 10), padx=10, fill="both", expand=True)
+
+        for i, sentence in enumerate(summary['unsubmitted'], start=0):
+            sentenceLabel = ctk.CTkLabel(self.scrollFrame, text=sentence, font=font, wraplength=260, justify="left")
+            sentenceLabel.grid(row=i, column=0, padx=2, pady=0, sticky="w")
+
+        self.scrollFrame.grid_columnconfigure(0, weight=1)
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
