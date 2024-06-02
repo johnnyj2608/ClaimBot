@@ -34,16 +34,16 @@ def ubScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        if not member['exclude']:
-            summaryStats['members'] += 1
+        dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'], 
+                                             member['vacationStart'], member['vacationEnd'])
+
+        if not member['exclude'] and dates:
             memberName = member['lastName']+', '+member['firstName']
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
             total = -1
             if ubStored(driver, summary, memberSearch, memberSelect):
-                dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
-                dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = ubForm(driver, summary, member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
@@ -54,11 +54,11 @@ def ubScript(driver,
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-        else:
-            summaryStats['excluded'] += 1
+            
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+    summaryStats['members'] = completedMembers
     return summaryStats
 
 def ubStored(driver, summary, memberSearch, memberSelect):

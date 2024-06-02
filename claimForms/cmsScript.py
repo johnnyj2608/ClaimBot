@@ -33,15 +33,15 @@ def cmsScript(driver,
     for member in members:
         if stopProcess(stopFlag): return
 
-        if not member['exclude']:
-            summaryStats['members'] += 1
+        dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'], 
+                                             member['vacationStart'], member['vacationEnd'])
+
+        if not member['exclude'] and dates:
             memberName = member['lastName']+', '+member['firstName']
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
             total = -1
             if cmsStored(driver, summary, memberSearch):
-                dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
-                dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
                 total = cmsForm(driver, summary, member['authID'], member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
@@ -52,11 +52,11 @@ def cmsScript(driver,
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-        else:
-            summaryStats['excluded'] += 1
+            
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
+    summaryStats['members'] = completedMembers
     return summaryStats
 
 def cmsStored(driver, summary, memberName):
