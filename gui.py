@@ -405,7 +405,9 @@ class ClaimbotGUI:
         self.summaryFrame.grid_rowconfigure(1, weight=1)
 
         font = ("Helvetica", 14)
-        unsubmittedLabel = ctk.CTkLabel(master=summaryWindow, text="Unsubmitted Members:", font=font, anchor="w")
+        unsubmittedCount = str(len(summary.get('unsubmitted', [])))
+        unsubmittedText = f"Unsubmitted Members: ({unsubmittedCount})"
+        unsubmittedLabel = ctk.CTkLabel(master=summaryWindow, text=unsubmittedText, font=font, anchor="w")
         unsubmittedLabel.pack(padx=10, pady=(5, 0), fill="x")
 
         self.scrollFrame = ctk.CTkScrollableFrame(master=summaryWindow)
