@@ -42,8 +42,7 @@ def cmsScript(driver,
             if cmsStored(driver, summary, memberSearch):
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
-                total = cmsForm(driver, summary, member['authID'], member['dxCode'], 
-                                dates, autoSubmit, stopFlag)
+                total = cmsForm(driver, summary, member['authID'], member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
                 summaryStats['success'] += 1

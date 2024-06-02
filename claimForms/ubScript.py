@@ -44,8 +44,7 @@ def ubScript(driver,
             if ubStored(driver, summary, memberSearch, memberSelect):
                 dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'])
                 dates = intersectVacations(dates, member['vacationStart'], member['vacationEnd'])
-                total = ubForm(driver, summary, member['dxCode'], member['medicaid'],
-                            dates, autoSubmit, stopFlag)
+                total = ubForm(driver, summary, member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
                 summaryStats['success'] += 1
@@ -126,7 +125,7 @@ def ubStored(driver, summary, memberSearch, memberSelect):
     createClaimButton.click()
     return True
     
-def ubForm(driver, summary, dxCode, medicaid, dates, autoSubmit, stopFlag):
+def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
     if stopProcess(stopFlag): return
     ub04URL = driver.current_url
     driver.switch_to.default_content()
@@ -176,10 +175,6 @@ def ubForm(driver, summary, dxCode, medicaid, dates, autoSubmit, stopFlag):
     admissionTypeField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_TypeOfAdmission"]')))
     admissionTypeField.send_keys(9)
-    
-    medicaidField = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_COBPriorAuthNum1"]')))
-    medicaidField.send_keys(medicaid)
     
     dxField = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PrimmaryDiagnosisCode"]')))

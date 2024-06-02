@@ -65,7 +65,7 @@ def validateExcelFile(excelFilePath):
             except (ValueError, TypeError):
                 pass
 
-        dataRange = memberSheet.range('B1:M1').expand('down').value
+        dataRange = memberSheet.range('B1:L1').expand('down').value
         if not any(isinstance(i, list) for i in dataRange):
             return [], {}
         df = pd.DataFrame(dataRange[1:], columns=dataRange[0])
@@ -73,7 +73,7 @@ def validateExcelFile(excelFilePath):
         df['Start'] = pd.to_datetime(df['Start'], errors='coerce')
         df['End'] = pd.to_datetime(df['End'], errors='coerce')
         df['Vacation'] = pd.to_datetime(df['Vacation'], errors='coerce')
-        df.rename(columns={df.columns[10]: 'VacationEnd'}, inplace=True)
+        df.rename(columns={df.columns[9]: 'VacationEnd'}, inplace=True)
         df['VacationEnd'] = pd.to_datetime(df['VacationEnd'], errors='coerce')
 
         members = []
@@ -82,7 +82,6 @@ def validateExcelFile(excelFilePath):
                 'lastName': row['Last Name'],
                 'firstName': row['First Name'],
                 'birthDate': row['Birth Date'],
-                'medicaid': row['Medicaid'],
                 'authID': row['Auth #'],
                 'dxCode': row['Dx Code'],
                 'schedule': row['Schedule'],
