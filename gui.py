@@ -6,7 +6,7 @@ from excel import validateExcelFile, ifExcelFileOpen
 import os
 from datetime import datetime
 from PIL import Image
-from officeAlly import officeAllyAutomate
+from officeAllyBilling.officeAlly import officeAllyAutomate
 from threading import Thread
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)

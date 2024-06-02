@@ -1,8 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from claimForms.cmsScript import cmsScript
-from claimForms.ubScript import ubScript
+from .cmsForm import cmsScript
+from .ubForm import ubScript
 
 def login(driver, username, password):
     usernameField = WebDriverWait(driver, 10).until(
@@ -48,7 +48,7 @@ def officeAllyAutomate(summary,
         driver = webdriver.Chrome(options=options)
         driver.get(office_ally)
         driver.maximize_window()
-        
+
         login(driver, summary['username'], summary['password'])
 
         submissionSummary = None

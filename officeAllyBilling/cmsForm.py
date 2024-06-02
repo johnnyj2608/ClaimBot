@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
-from claimForms.claimFormsHelper import *
+from .claimFormsHelper import *
 from excel import recordClaims
 import time
 import os

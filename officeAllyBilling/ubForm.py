@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from claimForms.claimFormsHelper import *
+from .claimFormsHelper import *
 from excel import recordClaims
 import time
 import glob
