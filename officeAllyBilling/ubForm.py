@@ -11,7 +11,7 @@ import glob
 import os
 
 def ubScript(driver, 
-              summary, 
+              form, 
               members, 
               start, 
               end, 
@@ -25,7 +25,7 @@ def ubScript(driver,
     statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
     statusLabel.update()
     
-    summaryStats = {
+    summary = {
         'members': 0,
         'success': 0,
         'total': 0,
@@ -40,23 +40,23 @@ def ubScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         if member['exclude']:
-            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' was excluded')
+            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' was excluded')
         elif not dates:
-            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
+            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
         else:
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
 
             total = -1
-            if ubStored(driver, summary, memberSearch, memberSelect):
-                total = ubForm(driver, summary, member['dxCode'], dates, autoSubmit, stopFlag)
+            if ubStored(driver, form, memberSearch, memberSelect):
+                total = ubForm(driver, form, member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
-                summaryStats['success'] += 1
-                summaryStats['total'] += total
+                summary['success'] += 1
+                summary['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
             else:
-                summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
+                summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
@@ -65,8 +65,8 @@ def ubScript(driver,
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-    summaryStats['members'] = completedMembers
-    return summaryStats
+    summary['members'] = completedMembers
+    return summary
 
 def ubStored(driver, summary, memberSearch, memberSelect):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=UB04OnlineEntry&TaskAction=StoredInfo'

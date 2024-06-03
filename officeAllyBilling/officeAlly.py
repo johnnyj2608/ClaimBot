@@ -23,7 +23,7 @@ def formatPath(path):
     if path:
         return path.replace('/', '\\')
 
-def officeAllyAutomate(summary, 
+def officeAllyAutomate(form, 
                        members, 
                        start, 
                        end, 
@@ -49,12 +49,12 @@ def officeAllyAutomate(summary,
         driver.get(office_ally)
         driver.maximize_window()
 
-        login(driver, summary['username'], summary['password'])
+        login(driver, form['username'], form['password'])
 
         submissionSummary = None
-        if summary['form'] == "Professional (CMS)":
+        if form['form'] == "Professional (CMS)":
             submissionSummary = cmsScript(driver,
-                      summary,
+                      form,
                       members,
                       start, 
                       end,
@@ -65,7 +65,7 @@ def officeAllyAutomate(summary,
                       stopFlag)
         else:
             submissionSummary = ubScript(driver,
-                      summary,
+                      form,
                       members,
                       start, 
                       end,

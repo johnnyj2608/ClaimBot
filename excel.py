@@ -10,58 +10,58 @@ def validateExcelFile(excelFilePath):
         wb = xw.Book(excelFilePath, ignore_read_only_recommended=True)
         
         memberSheet = None
-        summarySheet = None
+        formSheet = None
         
         for sheet in wb.sheets:
-            if "summary" == sheet.name.lower():
-                summarySheet = sheet
-            elif "claim" in sheet.name.lower():
+            if "claim" == sheet.name.lower():
+                formSheet = sheet
+            elif "submitted" in sheet.name.lower():
                 continue
             else: 
                 memberSheet = sheet
 
-        if summarySheet.range('A1').value == 'Claimbot Summary':
-            summary = {
-                "form": summarySheet.range('B2').value,
-                "username": summarySheet.range('B3').value,
-                "password": summarySheet.range('B4').value,
-                "payer": summarySheet.range('B5').value,
-                "billingProvider": summarySheet.range('B6').value,
+        if formSheet.range('A1').value == 'Claimbot':
+            form = {
+                "form": formSheet.range('B2').value,
+                "username": formSheet.range('B3').value,
+                "password": formSheet.range('B4').value,
+                "payer": formSheet.range('B5').value,
+                "billingProvider": formSheet.range('B6').value,
                 }
-            if summary['form'] == 'Professional (CMS)':
-                summary.update({
-                    "renderingProvider": summarySheet.range('B9').value,
-                    "facilities": summarySheet.range('B10').value,
-                    "servicePlace": summarySheet.range('B11').value,
-                    "cptCode": summarySheet.range('B12').value,
-                    "modifier": summarySheet.range('B13').value,
-                    "diagnosis": summarySheet.range('B14').value,
-                    "charges": summarySheet.range('B15').value,
-                    "units": summarySheet.range('B16').value,
+            if form['form'] == 'Professional (CMS)':
+                form.update({
+                    "renderingProvider": formSheet.range('B9').value,
+                    "facilities": formSheet.range('B10').value,
+                    "servicePlace": formSheet.range('B11').value,
+                    "cptCode": formSheet.range('B12').value,
+                    "modifier": formSheet.range('B13').value,
+                    "diagnosis": formSheet.range('B14').value,
+                    "charges": formSheet.range('B15').value,
+                    "units": formSheet.range('B16').value,
                 })
-            elif summary['form'] == 'Institutional (UB)':
-                summary.update({
-                    "physician": summarySheet.range('B9').value,
-                    "billType": summarySheet.range('B10').value,
-                    "revenueCode": summarySheet.range('B11').value,
-                    "descriptionSDC": summarySheet.range('B12').value,
-                    "cptCodeSDC": summarySheet.range('B13').value,
-                    "chargesSDC": summarySheet.range('B14').value,
-                    "unitsSDC": summarySheet.range('B15').value,
-                    "descriptionTrans": summarySheet.range('B16').value,
-                    "cptCodeTrans": summarySheet.range('B17').value,
-                    "chargesTrans": summarySheet.range('B18').value,
-                    "unitsTrans": summarySheet.range('B19').value,
+            elif form['form'] == 'Institutional (UB)':
+                form.update({
+                    "physician": formSheet.range('B9').value,
+                    "billType": formSheet.range('B10').value,
+                    "revenueCode": formSheet.range('B11').value,
+                    "descriptionSDC": formSheet.range('B12').value,
+                    "cptCodeSDC": formSheet.range('B13').value,
+                    "chargesSDC": formSheet.range('B14').value,
+                    "unitsSDC": formSheet.range('B15').value,
+                    "descriptionTrans": formSheet.range('B16').value,
+                    "cptCodeTrans": formSheet.range('B17').value,
+                    "chargesTrans": formSheet.range('B18').value,
+                    "unitsTrans": formSheet.range('B19').value,
                 })
         else:
             return {}, {}
         
-        for key in summary:
+        for key in form:
             try:
                 if key.startswith('charges'):
-                    summary[key] = "{:.2f}".format(summary[key])
+                    form[key] = "{:.2f}".format(form[key])
                 else:
-                    summary[key] = "{:.0f}".format(summary[key])
+                    form[key] = "{:.0f}".format(form[key])
             except (ValueError, TypeError):
                 pass
 
@@ -97,7 +97,7 @@ def validateExcelFile(excelFilePath):
         print(f"File not found.")
     
     app.quit()
-    return members, summary
+    return members, form
 
 def recordClaims(filePath, name, range, total):
     app = xw.App(visible=False)
@@ -109,7 +109,7 @@ def recordClaims(filePath, name, range, total):
         claimsSheet = None
         
         for sheet in wb.sheets:
-            if "claims" == sheet.name.lower():
+            if "submitted" == sheet.name.lower():
                 claimsSheet = sheet
         
         nextRow = claimsSheet.range("A"+str(claimsSheet.cells.last_cell.row)).end("up").row + 1

@@ -10,7 +10,7 @@ import os
 import glob
 
 def cmsScript(driver, 
-              summary, 
+              form, 
               members, 
               start, 
               end, 
@@ -24,7 +24,7 @@ def cmsScript(driver,
     statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
     statusLabel.update()
 
-    summaryStats = {
+    summary = {
         'members': 0,
         'success': 0,
         'total': 0,
@@ -39,22 +39,22 @@ def cmsScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         if member['exclude']:
-            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' was excluded')
+            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' was excluded')
         elif not dates:
-            summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
+            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' has no available dates')
         else:
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
             total = -1
-            if cmsStored(driver, summary, memberSearch):
-                total = cmsForm(driver, summary, member['authID'], member['dxCode'], dates, autoSubmit, stopFlag)
+            if cmsStored(driver, form, memberSearch):
+                total = cmsForm(driver, form, member['authID'], member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
-                summaryStats['success'] += 1
-                summaryStats['total'] += total
+                summary['success'] += 1
+                summary['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
             else:
-                summaryStats['unsubmitted'].append(str(len(summaryStats['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
+                summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ' failed to submit claim')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
@@ -63,8 +63,8 @@ def cmsScript(driver,
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
-    summaryStats['members'] = completedMembers
-    return summaryStats
+    summary['members'] = completedMembers
+    return summary
 
 def cmsStored(driver, summary, memberName):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage'
