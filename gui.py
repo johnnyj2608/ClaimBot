@@ -26,55 +26,60 @@ class ClaimbotGUI:
         self.prevDir = None
         self.autoDownloadPath = ''
         self.members = []
-        self.summary = {}
+        self.form = {}
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
         self.root.geometry(self.rightAlignWindow(self.root, 350, 525, self.root._get_window_scaling()))
 
-        self.frame = ctk.CTkFrame(master=self.root)
-        self.frame.pack(pady=20, padx=20, fill="both", expand=True)
+        self.tabView = ctk.CTkTabview(master=self.root)
+        self.tabView.pack(pady=(0, 20), padx=20, fill="both", expand=True)
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
-        self.titleLabel = ctk.CTkLabel(master=self.frame, text="Automate Claims", font=(None, 25, "bold"))
-        self.titleLabel.grid(row=0, column=0, columnspan=3, pady=12, padx=10)
+        self.initAutomateTab()
+        self.initSummaryTab()
+        
+    def initAutomateTab(self):
+        self.tab1 = self.tabView.add("Automate")
+        self.tab1.grid_columnconfigure((0, 2), weight=1)
+        
+        self.titleLabel = ctk.CTkLabel(master=self.tab1, text="Automate", font=(None, 25, "bold"))
+        self.titleLabel.grid(row=0, column=0, columnspan=3, pady=(0, 12), padx=10)
 
         self.filePath = ""
-        self.folderLabel = ctk.CTkLabel(master=self.frame, text="No Excel File Selected")
+        self.folderLabel = ctk.CTkLabel(master=self.tab1, text="No Excel File Selected")
         self.folderLabel.grid(row=1, column=0, columnspan=3, pady=0, padx=10)
 
-        self.browseButton = ctk.CTkButton(master=self.frame, text="Select Excel File", command=self.browseFolder)
+        self.browseButton = ctk.CTkButton(master=self.tab1, text="Select Excel File", command=self.browseFolder)
         self.browseButton.grid(row=2, column=0, columnspan=3, pady=(0, 6), padx=10)
 
         self.initRangeFrame()
         self.initDateFrame()
 
         self.autoSubmit = ctk.BooleanVar()
-        self.autoSubmitCheckbox = ctk.CTkCheckBox(master=self.frame, 
+        self.autoSubmitCheckbox = ctk.CTkCheckBox(master=self.tab1, 
                                                   text="Enable auto submit", 
                                                   variable=self.autoSubmit, 
                                                   state="disabled")
         self.autoSubmitCheckbox.grid(row=5, column=0, columnspan=3, pady=(6, 5), padx=60, sticky="w")
 
         self.autoDownload = ctk.BooleanVar()
-        self.autoDownloadCheckbox = ctk.CTkCheckBox(master=self.frame, 
+        self.autoDownloadCheckbox = ctk.CTkCheckBox(master=self.tab1, 
                                                     text="Enable auto download", 
                                                     variable=self.autoDownload, 
                                                     state="disabled", 
                                                     command=lambda: self.autoDownloadToggled())
         self.autoDownloadCheckbox.grid(row=6, column=0, columnspan=3, pady=(6, 6), padx=60, sticky="w")
 
-        self.automateButton = ctk.CTkButton(master=self.frame, text="Automate", command=self.automate, state="disabled")
+        self.automateButton = ctk.CTkButton(master=self.tab1, text="Automate", command=self.automate, state="disabled")
         self.automateButton.grid(row=7, column=0, columnspan=3, pady=(6, 6), padx=10)
 
-        self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
+        self.statusLabel = ctk.CTkLabel(master=self.tab1, text="")
         self.statusLabel.grid(row=8, column=0, columnspan=3, pady=0, padx=10)
 
-        self.frame.grid_columnconfigure((0, 2), weight=1)
-
     def initRangeFrame(self):
-        self.rangeFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
+        self.rangeFrame = ctk.CTkFrame(master=self.tab1, fg_color=self.tab1.cget("fg_color"))
         self.rangeFrame.grid(row=3, column=0, columnspan=3, pady=6, padx=10)
 
         self.rangelabel = ctk.CTkLabel(master=self.rangeFrame, text="Member Range")
@@ -82,19 +87,19 @@ class ClaimbotGUI:
 
         self.startRangeEntry = ctk.CTkEntry(master=self.rangeFrame, width=40)
         self.startRangeEntry.grid(row=1, column=0, columnspan=1, pady=0, padx=10, sticky="e")
-        self.startRangeEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
+        self.startRangeEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateMember), "%P"), state="disabled")
 
         self.memberHyphenlabel = ctk.CTkLabel(master=self.rangeFrame, text="to")
         self.memberHyphenlabel.grid(row=1, column=1, columnspan=1, pady=0, padx=10, sticky="ew")
 
         self.endRangeEntry = ctk.CTkEntry(master=self.rangeFrame, width=40)
         self.endRangeEntry.grid(row=1, column=2, columnspan=1, pady=0, padx=10, sticky="w")
-        self.endRangeEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
+        self.endRangeEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateMember), "%P"), state="disabled")
 
         self.rangeFrame.grid_columnconfigure((0, 1, 2), weight=1)
 
     def initDateFrame(self):
-        self.dateFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
+        self.dateFrame = ctk.CTkFrame(master=self.tab1, fg_color=self.tab1.cget("fg_color"))
         self.dateFrame.grid(row=4, column=0, columnspan=5, pady=6, padx=10)
 
         self.startDateLabel = ctk.CTkLabel(master=self.dateFrame, text="Start Date")
@@ -102,15 +107,15 @@ class ClaimbotGUI:
 
         self.startMonthEntry = ctk.CTkEntry(master=self.dateFrame, width=30)
         self.startMonthEntry.grid(row=1, column=0, pady=0, padx=1, sticky="e")
-        self.startMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"), state="disabled")
+        self.startMonthEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateMonth), "%P"), state="disabled")
 
         self.startDayEntry = ctk.CTkEntry(master=self.dateFrame, width=30)
         self.startDayEntry.grid(row=1, column=1, pady=0, padx=1, sticky="e")
-        self.startDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"), state="disabled")
+        self.startDayEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateDay), "%P"), state="disabled")
 
         self.startYearEntry = ctk.CTkEntry(master=self.dateFrame, width=45)
         self.startYearEntry.grid(row=1, column=2, pady=0, padx=1, sticky="e")
-        self.startYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
+        self.startYearEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateYear), "%P"), state="disabled")
 
         img = ctk.CTkImage(dark_image=Image.open(self.datePickerIcon))
         self.startDatePickerButton = ctk.CTkButton(master=self.dateFrame, 
@@ -127,15 +132,15 @@ class ClaimbotGUI:
 
         self.endMonthEntry = ctk.CTkEntry(master=self.dateFrame, width=30)
         self.endMonthEntry.grid(row=3, column=0, pady=0, padx=1, sticky="e")
-        self.endMonthEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMonth), "%P"), state="disabled")
+        self.endMonthEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateMonth), "%P"), state="disabled")
 
         self.endDayEntry = ctk.CTkEntry(master=self.dateFrame, width=30)
         self.endDayEntry.grid(row=3, column=1, pady=0, padx=1, sticky="e")
-        self.endDayEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateDay), "%P"), state="disabled")
+        self.endDayEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateDay), "%P"), state="disabled")
 
         self.endYearEntry = ctk.CTkEntry(master=self.dateFrame, width=45)
         self.endYearEntry.grid(row=3, column=2, pady=0, padx=1, sticky="e")
-        self.endYearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
+        self.endYearEntry.configure(validate="key", validatecommand=(self.tab1.register(self.validateYear), "%P"), state="disabled")
 
         self.endDatePickerButton = ctk.CTkButton(master=self.dateFrame, 
                                                 image=img, 
@@ -146,7 +151,44 @@ class ClaimbotGUI:
                                                 state="disabled")
         self.endDatePickerButton.grid(row=3, column=4, pady=0, padx=(5, 10), sticky="w")
 
-        self.frame.grid_columnconfigure((0, 4), weight=1)
+        self.tab1.grid_columnconfigure((0, 4), weight=1)
+
+    def initSummaryTab(self):
+        self.tab2 = self.tabView.add("Summary")
+        self.tab2.grid_columnconfigure((0, 1), weight=1)
+
+        self.titleLabel = ctk.CTkLabel(master=self.tab2, text="Summary", font=(None, 25, "bold"))
+        self.titleLabel.grid(row=0, column=0, columnspan=2, pady=(0, 12), padx=10)
+
+        self.summaryFrame = ctk.CTkFrame(master=self.tab2, fg_color=self.tab2.cget("fg_color"))
+        self.summaryFrame.grid(row=1, column=0, pady=(0, 12), padx=10)
+
+        font = ("Helvetica", 24)
+        self.membersLabel = ctk.CTkLabel(self.summaryFrame, text="Submitted:", font=font)
+        self.membersLabel.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        self.membersLabel = ctk.CTkLabel(self.summaryFrame, text="0 / 0", font=font)
+        self.membersLabel.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+        self.reimbursementLabel = ctk.CTkLabel(self.summaryFrame, text="Total ($):", font=font)
+        self.reimbursementLabel.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        self.reimbursementLabel = ctk.CTkLabel(self.summaryFrame, text="0.00", font=font)
+        self.reimbursementLabel.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+        self.summaryFrame.grid_columnconfigure((0, 1), weight=1)
+        self.summaryFrame.grid_rowconfigure(0, weight=1)
+        self.summaryFrame.grid_rowconfigure(1, weight=1)
+
+        self.unsubmittedLabel = ctk.CTkLabel(master=self.tab2, text="Unsubmitted: (0)", font=font, anchor="w")
+        self.unsubmittedLabel.grid(row=2, column=0, columnspan=2, pady=(20, 5), padx=10)
+
+        font = ("Helvetica", 14)
+        self.scrollFrame = ctk.CTkScrollableFrame(master=self.tab2, height=250)
+        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")
+
+        self.detailsLabel = ctk.CTkLabel(self.scrollFrame, text="", font=font, wraplength=240, justify="left")
+        self.detailsLabel.grid(row=4, column=0, padx=2, pady=0, sticky="w")
+
+        self.scrollFrame.grid_columnconfigure(0, weight=1)
 
     def rightAlignWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
         screen_width = Screen.winfo_screenwidth()
@@ -165,7 +207,7 @@ class ClaimbotGUI:
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
         if self.filePath:
-            self.members, self.summary = validateExcelFile(self.filePath)
+            self.members, self.form = validateExcelFile(self.filePath)
             if self.members:
                 self.enableUserInteraction()
                 fileName = os.path.basename(self.filePath)
@@ -353,7 +395,7 @@ class ClaimbotGUI:
         self.automateButton.configure(state="normal")
 
         thread = Thread(target = officeAllyAutomate, args=(
-            self.summary, 
+            self.form, 
             self.members[int(startMemberRange)-1:int(endMemberRange)],
             response[0],
             response[1],
@@ -366,58 +408,27 @@ class ClaimbotGUI:
         
         thread.start()
 
-    def automationCallback(self, submissionSummary):
+    def automationCallback(self, summary):
         self.runningFlag = False
         self.stopFlag.value = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
-        self.toggleSummary(submissionSummary)
-
-    def toggleSummary(self, summary):
-        if not summary:
-            return
-        summaryWindow = CTkToplevel()
-        summaryWindow.title('Claimbot Summary')
-        summaryWindow.geometry(self.centerWindow(summaryWindow, 400, 200, 0.9))
-        summaryWindow.grab_set()
-        summaryWindow.attributes("-topmost", True)
-
-        self.summaryFrame = ctk.CTkFrame(master=summaryWindow)
-        self.summaryFrame.pack(pady=(10, 5), padx=10, fill="both", expand=True)
-
-        font = ("Helvetica", 24)
-        successRatio = str(summary.get("success", 0))+' / '+str(summary.get("members", 0))
+        successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
         reimbursement = "{:.2f}".format(summary.get("total", 0))
-
-        membersLabel = ctk.CTkLabel(self.summaryFrame, text="Submitted:", font=font)
-        membersLabel.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-        membersLabel = ctk.CTkLabel(self.summaryFrame, text=successRatio, font=font)
-        membersLabel.grid(row=0, column=1, padx=10, pady=5, sticky="w")
-
-        submissionLabel = ctk.CTkLabel(self.summaryFrame, text="Total ($):", font=font)
-        submissionLabel.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
-        submissionLabel = ctk.CTkLabel(self.summaryFrame, text=reimbursement, font=font)
-        submissionLabel.grid(row=1, column=1, padx=10, pady=5, sticky="w")
-
-        self.summaryFrame.grid_columnconfigure((0,1), weight=1)
-        self.summaryFrame.grid_rowconfigure(0, weight=1)
-        self.summaryFrame.grid_rowconfigure(1, weight=1)
-
-        font = ("Helvetica", 14)
         unsubmittedCount = str(len(summary.get('unsubmitted', [])))
-        unsubmittedText = f"Unsubmitted Members: ({unsubmittedCount})"
-        unsubmittedLabel = ctk.CTkLabel(master=summaryWindow, text=unsubmittedText, font=font, anchor="w")
-        unsubmittedLabel.pack(padx=10, pady=(5, 0), fill="x")
+        unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
+        unsubmittedJoined = '\n'.join(summary['unsubmitted'])
 
-        self.scrollFrame = ctk.CTkScrollableFrame(master=summaryWindow)
-        self.scrollFrame.pack(pady=(0, 10), padx=10, fill="both", expand=True)
+        self.membersLabel.configure(text=successRatio)
+        self.reimbursementLabel.configure(text=reimbursement)
+        self.unsubmittedLabel.configure(text=unsubmittedText)
+        self.detailsLabel.configure(text=unsubmittedJoined)
 
-        for i, sentence in enumerate(summary['unsubmitted'], start=0):
-            sentenceLabel = ctk.CTkLabel(self.scrollFrame, text=sentence, font=font, wraplength=260, justify="left")
-            sentenceLabel.grid(row=i, column=0, padx=2, pady=0, sticky="w")
-
-        self.scrollFrame.grid_columnconfigure(0, weight=1)
+        self.membersLabel.update()
+        self.reimbursementLabel.update()
+        self.unsubmittedLabel.update()
+        self.detailsLabel.update()
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
