@@ -456,6 +456,8 @@ class ClaimbotGUI:
         self.unsubmittedLabel.update()
         self.detailsLabel.update()
 
+        self.tabView.set("     Summary     ")
+
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
 
