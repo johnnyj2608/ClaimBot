@@ -26,6 +26,7 @@ class ClaimbotGUI:
         self.runningFlag = False
         self.prevDir = None
         self.autoDownloadPath = ''
+        self.selectedMembers = []
         self.members = []
         self.form = {}
 
@@ -81,7 +82,7 @@ class ClaimbotGUI:
 
     def initSelectFrame(self):
         self.selectFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
-        self.selectFrame.grid(row=3, column=0, pady=6, padx=10)
+        self.selectFrame.grid(row=3, column=0, pady=0, padx=10)
         self.selectFrame.grid_columnconfigure(0, weight=1)
         self.selectFrame.grid_rowconfigure(0, weight=1)
 
@@ -100,6 +101,8 @@ class ClaimbotGUI:
                                bg="gray14", 
                                activestyle="none",
                                highlightcolor="#800000",
+                               exportselection=False,
+                               state="disabled"
                                )
         self.listbox.grid(row=1, column=0, columnspan=1, sticky="nsew", padx=(10, 0), pady=0)
         self.listbox.configure(font=("Arial", 9, "bold"))
@@ -109,26 +112,23 @@ class ClaimbotGUI:
 
         self.listbox.config(yscrollcommand=self.scrollbar.set)
         self.scrollbar.configure(command=self.listbox.yview)
-        
-        self.items = ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "test",
-                      "Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "test",]
-        for item in self.items:
-            self.listbox.insert('end', item)
 
         self.listButtonFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
         self.listButtonFrame.grid(row=2, column=0, columnspan=1, pady=6, padx=10)
         self.listButtonFrame.grid_columnconfigure((0, 1), weight=1)
 
-        self.allButton = ctk.CTkButton(master=self.listButtonFrame, text="All", width=50)
+        self.allButton = ctk.CTkButton(master=self.listButtonFrame, text="All", width=50, state="disabled")
         self.allButton.grid(row=0, column=0, columnspan=1, pady=0, padx=5, sticky="e")
         self.allButton.configure(command=lambda: self.listbox.selection_set(0, 'end'))
 
-        self.clearButton = ctk.CTkButton(master=self.listButtonFrame, text="Clear", width=50)
+        self.clearButton = ctk.CTkButton(master=self.listButtonFrame, text="Clear", width=50, state="disabled")
         self.clearButton.grid(row=0, column=1, columnspan=1, pady=0, padx=5, sticky="w")
         self.clearButton.configure(command=lambda: self.listbox.selection_clear(0, 'end'))
 
-        # Remove Padding
         # Scroll 1 at a time
+        # Selection borders
+        # Can not have empty selection
+        # Intersect members with selection
 
     def initDateFrame(self):
         self.dateFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
@@ -245,11 +245,11 @@ class ClaimbotGUI:
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
 
-                self.startRangeEntry.delete(0, "end")
-                self.startRangeEntry.insert(0, 1)
-
-                self.endRangeEntry.delete(0, "end")
-                self.endRangeEntry.insert(0, len(self.members))
+                self.listbox.selection_clear(0, 'end')
+                for member in self.members:
+                    memberName = f"{member['lastName']}, {member['firstName']}"
+                    self.listbox.insert('end', memberName)
+                self.listbox.selection_set(0, 'end')
 
                 self.startMonthEntry.delete(0, "end")
                 self.startMonthEntry.insert(0, datetime.now().month)
@@ -366,18 +366,20 @@ class ClaimbotGUI:
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
     
-    def validateInputs(self, startMember, endMember):
-        try:
-            startMember = int(startMember)
-            endMember = int(endMember)
-        except:
-            return False, "Member range can not be empty"
-        if startMember == 0 or endMember == 0:
-            return False, "Member range can not be 0"
-        if startMember > endMember:
-            return False, "Member start range larger than end range"
-        if startMember > len(self.members) or endMember > len(self.members):
-            return False, "Member range larger than member count"
+    def validateInputs(self):
+        if not self.listbox.curselection():
+            return False, "No members selected"
+
+        selectedIndices = set(self.listbox.curselection())
+        memberIndices = set(range(len(self.members)))
+        intersectedIndices = selectedIndices.intersection(memberIndices)
+
+        self.selectedMembers = []
+        for i in intersectedIndices:
+            self.selectedMembers.append(self.members[i])
+
+        if not self.selectedMembers:
+            return False, "No members in range"
         
         try:
             startMonth = int(self.startMonthEntry.get())
@@ -414,9 +416,7 @@ class ClaimbotGUI:
             self.stopFlag.value = True
             self.automateButton.configure(text="Stopping...")
             return
-        startMemberRange = self.startRangeEntry.get()
-        endMemberRange = self.endRangeEntry.get()
-        valid, response = self.validateInputs(startMemberRange, endMemberRange)
+        valid, response = self.validateInputs()
         if not valid:
             self.statusLabel.configure(text=response, text_color="red")
             return
@@ -424,11 +424,11 @@ class ClaimbotGUI:
         self.automateButton.configure(text="Stop", fg_color='#800000', hover_color='#98423d')
         self.statusLabel.configure(text="", text_color="gray84")
         self.disableUserInteraction()
-        self.automateButton.configure(state="normal")
+        self.automateButton.configure(state="normal")  
 
         thread = Thread(target = officeAllyAutomate, args=(
             self.form, 
-            self.members[int(startMemberRange)-1:int(endMemberRange)],
+            self.selectedMembers,
             response[0],
             response[1],
             self.filePath,
@@ -467,8 +467,9 @@ class ClaimbotGUI:
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
 
-        self.startRangeEntry.configure(state="disabled")
-        self.endRangeEntry.configure(state="disabled")
+        self.listbox.configure(state="disabled")
+        self.allButton.configure(state="disabled")
+        self.clearButton.configure(state="disabled")
 
         self.startMonthEntry.configure(state="disabled")
         self.startDayEntry.configure(state="disabled")
@@ -487,8 +488,9 @@ class ClaimbotGUI:
     def enableUserInteraction(self):
         self.browseButton.configure(state="normal")
 
-        self.startRangeEntry.configure(state="normal")
-        self.endRangeEntry.configure(state="normal")
+        self.listbox.configure(state="normal")
+        self.allButton.configure(state="normal")
+        self.clearButton.configure(state="normal")
 
         self.startMonthEntry.configure(state="normal")
         self.startDayEntry.configure(state="normal")
