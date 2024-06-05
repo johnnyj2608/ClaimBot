@@ -94,7 +94,7 @@ class ClaimbotGUI:
         self.listBoxFrame.grid_columnconfigure(0, weight=1)
 
         self.listbox = Listbox(self.listBoxFrame, 
-                               height=4, 
+                               height=3, 
                                width=25,
                                selectmode="multiple", 
                                fg="gray84", 
@@ -102,10 +102,12 @@ class ClaimbotGUI:
                                activestyle="none",
                                highlightcolor="#800000",
                                exportselection=False,
-                               state="disabled"
+                               state="disabled",
+                               borderwidth=1,
+                               relief="ridge"
                                )
-        self.listbox.grid(row=1, column=0, columnspan=1, sticky="nsew", padx=(10, 0), pady=0)
-        self.listbox.configure(font=("Arial", 9, "bold"))
+        self.listbox.grid(row=1, column=0, sticky="nsew", padx=(10, 0), pady=0)
+        self.listbox.configure(font=("Arial", 10, "bold"))
 
         self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=5)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
@@ -125,10 +127,9 @@ class ClaimbotGUI:
         self.clearButton.grid(row=0, column=1, columnspan=1, pady=0, padx=5, sticky="w")
         self.clearButton.configure(command=lambda: self.listbox.selection_clear(0, 'end'))
 
+        # Search bar
         # Scroll 1 at a time
         # Selection borders
-        # Can not have empty selection
-        # Intersect members with selection
 
     def initDateFrame(self):
         self.dateFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
@@ -247,7 +248,7 @@ class ClaimbotGUI:
 
                 self.listbox.selection_clear(0, 'end')
                 for member in self.members:
-                    memberName = f"{member['lastName']}, {member['firstName']}"
+                    memberName = f" {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                 self.listbox.selection_set(0, 'end')
 
