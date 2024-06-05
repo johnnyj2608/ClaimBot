@@ -30,7 +30,7 @@ class ClaimbotGUI:
         self.form = {}
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
-        self.root.geometry(self.rightAlignWindow(self.root, 350, 525, self.root._get_window_scaling()))
+        self.root.geometry(self.rightAlignWindow(self.root, 350, 600, self.root._get_window_scaling()))
 
         self.tabView = ctk.CTkTabview(master=self.root)
         self.tabView.pack(pady=(0, 20), padx=20, fill="both", expand=True)
@@ -43,10 +43,10 @@ class ClaimbotGUI:
 
     def initAutomateTab(self):
         self.automateTab = self.tabView.add("     Automate     ")
-        self.automateTab.grid_columnconfigure((0, 2), weight=1)
+        self.automateTab.grid_columnconfigure(0, weight=1)
         
         self.titleLabel = ctk.CTkLabel(master=self.automateTab, text="Automate", font=(None, 25, "bold"))
-        self.titleLabel.grid(row=0, column=0, columnspan=3, pady=(0, 12), padx=10)
+        self.titleLabel.grid(row=0, column=0, pady=(0, 12), padx=10)
 
         self.filePath = ""
         self.folderLabel = ctk.CTkLabel(master=self.automateTab, text="No Excel File Selected")
@@ -55,7 +55,7 @@ class ClaimbotGUI:
         self.browseButton = ctk.CTkButton(master=self.automateTab, text="Select Excel File", command=self.browseFolder)
         self.browseButton.grid(row=2, column=0, columnspan=3, pady=(0, 6), padx=10)
 
-        self.initRangeFrame()
+        self.initSelectFrame()
         self.initDateFrame()
 
         self.autoSubmit = ctk.BooleanVar()
@@ -79,42 +79,33 @@ class ClaimbotGUI:
         self.statusLabel = ctk.CTkLabel(master=self.automateTab, text="")
         self.statusLabel.grid(row=8, column=0, columnspan=3, pady=0, padx=10)
 
-    def initRangeFrame(self):
-        self.memberTabs = ctk.CTkTabview(master=self.automateTab, height=115, fg_color="gray27")
-        self.memberTabs.grid(row=3, column=0, columnspan=3, pady=0, padx=0)
+    def initSelectFrame(self):
+        self.selectFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
+        self.selectFrame.grid(row=3, column=0, pady=6, padx=10)
+        self.selectFrame.grid_columnconfigure(0, weight=1)
+        self.selectFrame.grid_rowconfigure(0, weight=1)
 
-        self.rangeTab = self.memberTabs.add("   Range   ")
-        self.rangeTab.grid_columnconfigure((0, 1, 2), weight=1)
-        self.rangeTab.grid_rowconfigure((0, 1, 2), weight=1)
+        self.selectLabel = ctk.CTkLabel(master=self.selectFrame, text="Select Members")
+        self.selectLabel.grid(row=0, column=0, pady=0, padx=10, sticky="ew")
 
-        self.startRangeEntry = ctk.CTkEntry(master=self.rangeTab, width=40)
-        self.startRangeEntry.grid(row=0, column=0, columnspan=1, pady=0, padx=10, sticky="e")
-        self.startRangeEntry.configure(validate="key", validatecommand=(self.automateTab.register(self.validateMember), "%P"), state="disabled")
+        self.listBoxFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
+        self.listBoxFrame.grid(row=1, column=0, pady=0, padx=10)
+        self.listBoxFrame.grid_columnconfigure(0, weight=1)
 
-        self.memberHyphenlabel = ctk.CTkLabel(master=self.rangeTab, text="to")
-        self.memberHyphenlabel.grid(row=0, column=1, columnspan=1, pady=0, padx=10, sticky="ew")
-
-        self.endRangeEntry = ctk.CTkEntry(master=self.rangeTab, width=40)
-        self.endRangeEntry.grid(row=0, column=2, columnspan=1, pady=0, padx=10, sticky="w")
-        self.endRangeEntry.configure(validate="key", validatecommand=(self.automateTab.register(self.validateMember), "%P"), state="disabled")
-
-        self.selectTab = self.memberTabs.add("   Select   ")
-        self.selectTab.grid_columnconfigure((0), weight=1)
-        self.selectTab.grid_rowconfigure((0), weight=1)
-
-        self.listbox = Listbox(self.selectTab, 
-                               height=3, 
+        self.listbox = Listbox(self.listBoxFrame, 
+                               height=4, 
+                               width=25,
                                selectmode="multiple", 
                                fg="gray84", 
                                bg="gray14", 
                                activestyle="none",
                                highlightcolor="#800000",
                                )
-        self.listbox.grid(row=0, column=0, columnspan=1, sticky='ew', padx=0, pady=0)
-        self.listbox.configure(font=("Arial", 11, "bold"))
+        self.listbox.grid(row=1, column=0, columnspan=1, sticky="nsew", padx=(10, 0), pady=0)
+        self.listbox.configure(font=("Arial", 9, "bold"))
 
-        self.scrollbar = ctk.CTkScrollbar(self.selectTab, height=5)
-        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=5)
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
 
         self.listbox.config(yscrollcommand=self.scrollbar.set)
         self.scrollbar.configure(command=self.listbox.yview)
@@ -124,9 +115,24 @@ class ClaimbotGUI:
         for item in self.items:
             self.listbox.insert('end', item)
 
+        self.listButtonFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
+        self.listButtonFrame.grid(row=2, column=0, columnspan=1, pady=6, padx=10)
+        self.listButtonFrame.grid_columnconfigure((0, 1), weight=1)
+
+        self.allButton = ctk.CTkButton(master=self.listButtonFrame, text="All", width=50)
+        self.allButton.grid(row=0, column=0, columnspan=1, pady=0, padx=5, sticky="e")
+        self.allButton.configure(command=lambda: self.listbox.selection_set(0, 'end'))
+
+        self.clearButton = ctk.CTkButton(master=self.listButtonFrame, text="Clear", width=50)
+        self.clearButton.grid(row=0, column=1, columnspan=1, pady=0, padx=5, sticky="w")
+        self.clearButton.configure(command=lambda: self.listbox.selection_clear(0, 'end'))
+
+        # Remove Padding
+        # Scroll 1 at a time
+
     def initDateFrame(self):
         self.dateFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
-        self.dateFrame.grid(row=4, column=0, columnspan=5, pady=0, padx=10)
+        self.dateFrame.grid(row=4, column=0, columnspan=3, pady=6, padx=10)
 
         self.startDateLabel = ctk.CTkLabel(master=self.dateFrame, text="Start Date")
         self.startDateLabel.grid(row=0, column=0, columnspan=5, pady=0, padx=10, sticky="ew")
