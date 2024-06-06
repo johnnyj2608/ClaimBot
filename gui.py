@@ -60,7 +60,7 @@ class ClaimbotGUI:
         self.initDateFrame()
 
         self.checkboxFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
-        self.checkboxFrame.grid(row=5, column=0, pady=6, padx=0)
+        self.checkboxFrame.grid(row=5, column=0, pady=0, padx=0)
         self.selectFrame.grid_columnconfigure(0, weight=1)
 
         self.autoSubmit = ctk.BooleanVar()

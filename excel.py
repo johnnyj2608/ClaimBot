@@ -78,6 +78,8 @@ def validateExcelFile(excelFilePath):
 
         members = []
         for _, row in df.iterrows():
+            if row['Exclude']:
+                continue
             member = {
                 'lastName': row['Last Name'],
                 'firstName': row['First Name'],

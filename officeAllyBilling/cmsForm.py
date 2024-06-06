@@ -38,9 +38,7 @@ def cmsScript(driver,
                                              member['vacationStart'], member['vacationEnd'])
         memberName = member['lastName']+', '+member['firstName']
 
-        if member['exclude']:
-            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': Marked excluded')
-        elif not dates:
+        if not dates:
             summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': No available dates')
         else:
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
