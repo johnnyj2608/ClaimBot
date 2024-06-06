@@ -107,8 +107,9 @@ class ClaimbotGUI:
                                highlightcolor="#800000",
                                exportselection=False,
                                state="disabled",)
-        self.listbox.grid(row=1, column=0, sticky="nsew", padx=(15, 0), pady=0)
+        self.listbox.grid(row=1, column=0, sticky="ew", padx=(15, 0), pady=0)
         self.listbox.configure(font=("Arial", 10, "bold"))
+        self.listbox.bind("<MouseWheel>", self.mouseScrollEvent)
 
         self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=5)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
@@ -127,10 +128,13 @@ class ClaimbotGUI:
         self.clearButton = ctk.CTkButton(master=self.listButtonFrame, text="Clear", width=50, state="disabled")
         self.clearButton.grid(row=0, column=1, columnspan=1, pady=0, padx=5, sticky="w")
         self.clearButton.configure(command=lambda: self.listbox.selection_clear(0, 'end'))
-
-        # Search bar
-        # Scroll 1 at a time
-        # Selection borders or padding
+        
+    def mouseScrollEvent(self, event):
+        if event.delta > 0:
+            self.listbox.yview_scroll(-1, "units")
+        elif event.delta < 0:
+            self.listbox.yview_scroll(1, "units")
+        return "break"
 
     def initDateFrame(self):
         self.dateFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
