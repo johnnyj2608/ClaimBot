@@ -39,7 +39,7 @@ def cmsScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         if not dates:
-            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': No available dates')
+            summary['unsubmitted'].append(member['id']+'. '+memberName + ': No available dates')
         else:
             memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
             
@@ -52,7 +52,7 @@ def cmsScript(driver,
                 summary['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
             else:
-                summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': Failed to submit')
+                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),

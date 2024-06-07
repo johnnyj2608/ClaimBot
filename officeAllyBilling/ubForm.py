@@ -40,7 +40,7 @@ def ubScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         if not dates:
-            summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': No available dates')
+            summary['unsubmitted'].append(member['id']+'. '+memberName + ': No available dates')
         else:
             memberSearch = member['firstName']+' '+member['lastName']
             memberSelect = member['lastName']+', '+member['firstName']+' ['+member['birthDate'].strftime("%#m/%#d/%y")+']'
@@ -54,7 +54,7 @@ def ubScript(driver,
                 summary['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
             else:
-                summary['unsubmitted'].append(str(len(summary['unsubmitted'])+1)+'. '+memberName + ': Failed to submit')
+                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
             recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),

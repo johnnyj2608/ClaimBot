@@ -250,7 +250,7 @@ class ClaimbotGUI:
 
                 self.listbox.selection_clear(0, 'end')
                 for member in self.members:
-                    memberName = f" {member['lastName']}, {member['firstName']}"
+                    memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                 self.listbox.selection_set(0, 'end')
 
