@@ -17,7 +17,6 @@ class ProcessStop:
         self.value = False
 
 class ClaimbotGUI:
-
     def __init__(self, datePickerIcon):
         self.datePickerIcon = datePickerIcon
         self.root = ctk.CTk()
@@ -97,8 +96,8 @@ class ClaimbotGUI:
         self.listBoxFrame.grid(row=1, column=0, pady=0, padx=0)
         self.listBoxFrame.grid_columnconfigure(0, weight=1)
 
-        self.searchEntry = ctk.CTkEntry(self.listBoxFrame, width=25)
-        self.searchEntry.grid(row=0, column=0, sticky="ew", padx=(15, 0), pady=2)
+        self.searchEntry = ctk.CTkEntry(self.listBoxFrame, width=25, state="disabled")
+        self.searchEntry.grid(row=0, column=0, sticky="ew", padx=(13, 0), pady=2)
         self.searchEntry.bind("<KeyRelease>", self.searchList)
 
         self.listbox = Listbox(self.listBoxFrame, 
@@ -153,7 +152,7 @@ class ClaimbotGUI:
         self.listbox.delete(0, 'end')
 
         for member in self.members:
-            memberName = f"{member['id']}. {member['lastName']}, {member['firstName']}"
+            memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
             if searchText in memberName.lower():
                 self.listbox.insert('end', memberName)
                 if memberName in self.curSelection:
@@ -279,13 +278,6 @@ class ClaimbotGUI:
         x = int(screen_width - width * scale_factor) - 50
         y = int((screen_height - height * scale_factor) / 2) - 100
         return f"{width}x{height}+{x}+{y}"
-    
-    def centerWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
-        screen_width = Screen.winfo_screenwidth()
-        screen_height = Screen.winfo_screenheight()
-        x = int(((screen_width/2) - (width/2)) * scale_factor)
-        y = int(((screen_height/2) - (height/1.5)) * scale_factor)
-        return f"{width}x{height}+{x}+{y}"
 
     def browseFolder(self):
         self.filePath = filedialog.askopenfilename(title="Select a File", filetypes=[("Excel files", "*.xlsx")])
@@ -297,8 +289,9 @@ class ClaimbotGUI:
                 self.folderLabel.configure(text=fileName, text_color="gray84")
 
                 self.clearSelection()
+                self.listbox.delete(0, 'end')
                 for member in self.members:
-                    memberName = f"{member['id']}. {member['lastName']}, {member['firstName']}"
+                    memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                     self.membersList.add(memberName)
                 self.selectAll()
@@ -519,6 +512,7 @@ class ClaimbotGUI:
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
 
+        self.searchEntry.configure(state="disabled")
         self.listbox.configure(state="disabled")
         self.allButton.configure(state="disabled")
         self.clearButton.configure(state="disabled")
@@ -540,6 +534,7 @@ class ClaimbotGUI:
     def enableUserInteraction(self):
         self.browseButton.configure(state="normal")
 
+        self.searchEntry.configure(state="normal")
         self.listbox.configure(state="normal")
         self.allButton.configure(state="normal")
         self.clearButton.configure(state="normal")
