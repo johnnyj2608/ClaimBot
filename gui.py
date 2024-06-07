@@ -27,11 +27,12 @@ class ClaimbotGUI:
         self.prevDir = None
         self.autoDownloadPath = ''
         self.selectedMembers = []
+        self.membersList = set()
         self.members = []
         self.form = {}
 
         self.root.after(1, lambda: self.root.attributes("-topmost", True))
-        self.root.geometry(self.rightAlignWindow(self.root, 350, 600, self.root._get_window_scaling()))
+        self.root.geometry(self.rightAlignWindow(self.root, 350, 625, self.root._get_window_scaling()))
 
         self.tabView = ctk.CTkTabview(master=self.root)
         self.tabView.pack(pady=(0, 20), padx=20, fill="both", expand=True)
@@ -92,9 +93,13 @@ class ClaimbotGUI:
         self.selectLabel = ctk.CTkLabel(master=self.selectFrame, text="Select Members")
         self.selectLabel.grid(row=0, column=0, pady=0, padx=10, sticky="ew")
 
-        self.listBoxFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray14")
+        self.listBoxFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
         self.listBoxFrame.grid(row=1, column=0, pady=0, padx=0)
         self.listBoxFrame.grid_columnconfigure(0, weight=1)
+
+        self.searchEntry = ctk.CTkEntry(self.listBoxFrame, width=25)
+        self.searchEntry.grid(row=0, column=0, sticky="ew", padx=(15, 0), pady=2)
+        self.searchEntry.bind("<KeyRelease>", self.searchList)
 
         self.listbox = Listbox(self.listBoxFrame, 
                                height=4, 
@@ -104,13 +109,16 @@ class ClaimbotGUI:
                                bg="gray14", 
                                activestyle="none",
                                highlightcolor="#800000",
-                               exportselection=False,
-                               borderwidth=0, 
                                highlightthickness=0,
+                               relief='ridge',
+                               exportselection=False,
                                state="disabled",)
-        self.listbox.grid(row=1, column=0, sticky="ew", padx=(10, 0), pady=0)
+        self.listbox.grid(row=1, column=0, sticky="ew", padx=(20, 0), pady=0)
         self.listbox.configure(font=("Arial", 10, "bold"))
         self.listbox.bind("<MouseWheel>", self.mouseScrollEvent)
+        self.listbox.bind("<<ListboxSelect>>", self.onSelect)
+        self.curSelection = set()
+        self.prevSelection = set()
 
         self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=4)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
@@ -119,16 +127,55 @@ class ClaimbotGUI:
         self.scrollbar.configure(command=self.listbox.yview)
 
         self.listButtonFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
-        self.listButtonFrame.grid(row=2, column=0, columnspan=1, pady=6, padx=10)
+        self.listButtonFrame.grid(row=3, column=0, columnspan=1, pady=6, padx=10)
         self.listButtonFrame.grid_columnconfigure((0, 1), weight=1)
 
         self.allButton = ctk.CTkButton(master=self.listButtonFrame, text="All", width=50, state="disabled")
         self.allButton.grid(row=0, column=0, columnspan=1, pady=0, padx=5, sticky="e")
-        self.allButton.configure(command=lambda: self.listbox.selection_set(0, 'end'))
+        self.allButton.configure(command=self.selectAll)
 
         self.clearButton = ctk.CTkButton(master=self.listButtonFrame, text="Clear", width=50, state="disabled")
         self.clearButton.grid(row=0, column=1, columnspan=1, pady=0, padx=5, sticky="w")
-        self.clearButton.configure(command=lambda: self.listbox.selection_clear(0, 'end'))
+        self.clearButton.configure(command=self.clearSelection)
+
+    def selectAll(self):
+        self.listbox.selection_set(0, 'end')
+        self.curSelection = set(self.listbox.get(0, 'end'))
+        self.prevSelection = set(self.listbox.get(0, 'end'))
+
+    def clearSelection(self):
+        self.listbox.selection_clear(0, 'end')
+        self.curSelection.clear()
+        self.prevSelection.clear()
+
+    def searchList(self, event):
+        searchText = self.searchEntry.get().lower()
+        self.listbox.delete(0, 'end')
+
+        for member in self.members:
+            memberName = f"{member['id']}. {member['lastName']}, {member['firstName']}"
+            if searchText in memberName.lower():
+                self.listbox.insert('end', memberName)
+                if memberName in self.curSelection:
+                    self.listbox.selection_set('end')
+
+    def onSelect(self, event):
+        subset = set(self.listbox.get(0, 'end'))
+        filtered = self.membersList - subset
+
+        curSelected = [self.listbox.get(index) for index in self.listbox.curselection()]
+        curSelected = set(curSelected)
+
+        deselected = self.prevSelection - curSelected - filtered
+        selected = curSelected - self.prevSelection - filtered
+        
+        if deselected:
+            self.curSelection.remove(deselected.pop())
+        else:
+            self.curSelection.add(selected.pop())
+        self.prevSelection = set(curSelected).copy()
+            
+        self.listbox.after(100, lambda: self.searchEntry.focus_set())
         
     def mouseScrollEvent(self, event):
         if event.delta > 0:
@@ -249,11 +296,12 @@ class ClaimbotGUI:
                 fileName = os.path.basename(self.filePath)
                 self.folderLabel.configure(text=fileName, text_color="gray84")
 
-                self.listbox.selection_clear(0, 'end')
+                self.clearSelection()
                 for member in self.members:
                     memberName = f"{member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
-                self.listbox.selection_set(0, 'end')
+                    self.membersList.add(memberName)
+                self.selectAll()
 
                 self.startMonthEntry.delete(0, "end")
                 self.startMonthEntry.insert(0, datetime.now().month)
