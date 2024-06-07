@@ -88,13 +88,12 @@ class ClaimbotGUI:
         self.selectFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
         self.selectFrame.grid(row=3, column=0, pady=0, padx=10)
         self.selectFrame.grid_columnconfigure(0, weight=1)
-        self.selectFrame.grid_rowconfigure(0, weight=1)
 
         self.selectLabel = ctk.CTkLabel(master=self.selectFrame, text="Select Members")
         self.selectLabel.grid(row=0, column=0, pady=0, padx=10, sticky="ew")
 
-        self.listBoxFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray17")
-        self.listBoxFrame.grid(row=1, column=0, pady=0, padx=10)
+        self.listBoxFrame = ctk.CTkFrame(master=self.selectFrame, fg_color="gray14")
+        self.listBoxFrame.grid(row=1, column=0, pady=0, padx=0)
         self.listBoxFrame.grid_columnconfigure(0, weight=1)
 
         self.listbox = Listbox(self.listBoxFrame, 
@@ -106,12 +105,14 @@ class ClaimbotGUI:
                                activestyle="none",
                                highlightcolor="#800000",
                                exportselection=False,
+                               borderwidth=0, 
+                               highlightthickness=0,
                                state="disabled",)
-        self.listbox.grid(row=1, column=0, sticky="ew", padx=(15, 0), pady=0)
+        self.listbox.grid(row=1, column=0, sticky="ew", padx=(10, 0), pady=0)
         self.listbox.configure(font=("Arial", 10, "bold"))
         self.listbox.bind("<MouseWheel>", self.mouseScrollEvent)
 
-        self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=5)
+        self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=4)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
 
         self.listbox.config(yscrollcommand=self.scrollbar.set)
@@ -250,7 +251,7 @@ class ClaimbotGUI:
 
                 self.listbox.selection_clear(0, 'end')
                 for member in self.members:
-                    memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
+                    memberName = f"{member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                 self.listbox.selection_set(0, 'end')
 
