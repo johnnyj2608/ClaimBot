@@ -41,10 +41,8 @@ def cmsScript(driver,
         if not dates:
             summary['unsubmitted'].append(member['id']+'. '+memberName + ': No available dates')
         else:
-            memberSearch = memberName+' ['+member['birthDate'].strftime("%m/%d/%Y")+']'
-            
             total = -1
-            if cmsStored(driver, form, memberSearch):
+            if cmsStored(driver, form, member['lastName'], member['firstName'], member['birthDate'].strftime("%m/%d/%Y")):
                 total = cmsForm(driver, form, member['authID'], member['dxCode'], dates, autoSubmit, stopFlag)
             if stopProcess(stopFlag): return
             if total != -1:
@@ -57,14 +55,13 @@ def cmsScript(driver,
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-
         completedMembers += 1
         statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
         statusLabel.update()
     summary['members'] = completedMembers
     return summary
 
-def cmsStored(driver, summary, memberName):
+def cmsStored(driver, summary, lastName, firstName, birthDate):
     storedInfoURL='https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Manage'
     if driver.current_url != storedInfoURL:
         driver.get(storedInfoURL)
@@ -73,15 +70,72 @@ def cmsStored(driver, summary, memberName):
         )
         driver.switch_to.frame(iframe)
 
+    patientsButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="btnPatient"]'))
+    )
+    patientsButton.click()
+
+    originalHandle = driver.current_window_handle
+    for handle in driver.window_handles: 
+        if handle != originalHandle: 
+            driver.switch_to.window(handle)
+
+    searchName = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_ddlSearch"]'))))
+    searchName.select_by_visible_text('First Name')
+    searchCriteria = Select(WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_ddlCondition"]'))))
+    searchCriteria.select_by_visible_text('Equals to')
+    searchField = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_txtSearch"]')))
+    searchField.send_keys(firstName)
+    searchButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_btnSearch"]'))
+    )
+    searchButton.click()
+
+    page = 1
+    found = False
     try:
-        patientsCombo = Select(WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="ddlPatient"]'))
-    ))
-        patientsCombo.select_by_visible_text(memberName)
-    except NoSuchElementException:
+        while True:
+            memberTable = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_grvPopup"]/tbody'))
+            )
+            members = memberTable.find_elements('xpath', "./*[not(contains(@class, 'GridViewPager'))]")
+            for row in range(1, len(members)):
+                row += 1
+                rowName = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[2]'))
+                )
+                rowDoB = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[4]'))
+                )
+                if rowName.text == lastName and rowDoB.text == birthDate:
+                    rowSelect = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[1]/a'))
+                    )
+                    rowSelect.click()
+                    found = True
+                    break
+            if found:
+                break
+            page += 1
+            nextPage = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[12]/td/table/tbody/tr/td[{page}]/a'))
+            )
+            nextPage.click()
+    except:
+        memberName = lastName+', '+firstName+' ['+birthDate+']'
         print(f"Element with visible text '{memberName}' not found.")
+        driver.close()
         return False
-    
+    finally:
+        driver.switch_to.window(originalHandle)
+        iframe = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="Iframe9"]'))
+            )
+        driver.switch_to.frame(iframe)
+
     try:
         payerCombo = Select(WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ddlPayer"]'))))
@@ -161,7 +215,7 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         EC.element_to_be_clickable(('xpath', '//*[@id="lnkPatientCopy"]')))
     copyPatient.click()
 
-    confirmPatient = WebDriverWait(driver, 100).until(
+    confirmPatient = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '/html/body/div[5]/div[3]/div/button[1]')))
     confirmPatient.click()
 
