@@ -75,7 +75,8 @@ def officeAllyAutomate(form,
                       statusLabel,
                       stopFlag)
 
-        statusLabel.configure(text_color="green")
+        successRatio = str(submissionSummary.get("success", 0)) + ' / ' + str(submissionSummary.get("members", 0))
+        statusLabel.configure(text="Completed "+successRatio)
         statusLabel.update()
 
     except Exception as e:
