@@ -499,23 +499,24 @@ class ClaimbotGUI:
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
-        successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
-        reimbursement = "{:.2f}".format(summary.get("total", 0))
-        unsubmittedCount = str(len(summary.get('unsubmitted', [])))
-        unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
-        unsubmittedJoined = '\n'.join(summary['unsubmitted'])
+        if summary:
+            successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
+            reimbursement = "{:.2f}".format(summary.get("total", 0))
+            unsubmittedCount = str(len(summary.get('unsubmitted', [])))
+            unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
+            unsubmittedJoined = '\n'.join(summary['unsubmitted'])
 
-        self.membersLabel.configure(text=successRatio)
-        self.reimbursementLabel.configure(text=reimbursement)
-        self.unsubmittedLabel.configure(text=unsubmittedText)
-        self.detailsLabel.configure(text=unsubmittedJoined)
+            self.membersLabel.configure(text=successRatio)
+            self.reimbursementLabel.configure(text=reimbursement)
+            self.unsubmittedLabel.configure(text=unsubmittedText)
+            self.detailsLabel.configure(text=unsubmittedJoined)
 
-        self.membersLabel.update()
-        self.reimbursementLabel.update()
-        self.unsubmittedLabel.update()
-        self.detailsLabel.update()
+            self.membersLabel.update()
+            self.reimbursementLabel.update()
+            self.unsubmittedLabel.update()
+            self.detailsLabel.update()
 
-        self.tabView.set("     Summary     ")
+            self.tabView.set("     Summary     ")
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
