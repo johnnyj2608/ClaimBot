@@ -207,66 +207,54 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
     for rowNum in range(1, (len(dates)*2)+1):
         if stopProcess(stopFlag): return
 
+        curDate = dates[(rowNum-1) // 2]
+        month = curDate.month
+        day = curDate.day
+        year = curDate.year
+
         revCodeRow = driver.find_element(
             'xpath', f'//*[@id="RevCode{rowNum}"]')
         revCodeRow.send_keys(summary['revenueCode'])
 
         descRow = driver.find_element(
             'xpath', f'//*[@id="Description{rowNum}"]')
+        descRow.send_keys(summary['descriptionSDC']) if rowNum % 2 == 1 else descRow.send_keys(summary['descriptionTrans'])
 
         cptRow = driver.find_element(
             'xpath', f'//*[@id="Rate{rowNum}"]')
+        cptRow.send_keys(summary['cptCodeSDC']) if rowNum % 2 == 1 else cptRow.send_keys(summary['cptCodeTrans'])
+        
+        fmMonth = driver.find_element(
+            'xpath', f'//*[@id="FromDateMonth{rowNum}"]')
+        fmMonth.send_keys(month)
+        
+        fmDay = driver.find_element(
+            'xpath', f'//*[@id="FromDateDay{rowNum}"]')
+        fmDay.send_keys(day)
+        
+        fmYear = driver.find_element(
+            'xpath', f'//*[@id="FromDateYear{rowNum}"]')
+        fmYear.send_keys(year)
+        
+        toMonth = driver.find_element(
+            'xpath', f'//*[@id="ToDateMonth{rowNum}"]')
+        toMonth.send_keys(month)
+        
+        toDay = driver.find_element(
+            'xpath', f'//*[@id="ToDateDay{rowNum}"]')
+        toDay.send_keys(day)  
+        
+        toYear = driver.find_element(
+            'xpath', f'//*[@id="ToDateYear{rowNum}"]')
+        toYear.send_keys(year)
 
         unitsRow = driver.find_element(
             'xpath', f'//*[@id="Units{rowNum}"]')
+        unitsRow.send_keys(summary['unitsSDC']) if rowNum % 2 == 1 else unitsRow.send_keys(summary['unitsTrans'])
 
         chargeRow = driver.find_element(
             'xpath', f'//*[@id="TotalCharge{rowNum}"]')
-        
-        if rowNum % 2 == 1:
-            descRow.send_keys(summary['descriptionSDC'])
-            cptRow.send_keys(summary['cptCodeSDC'])
-            unitsRow.send_keys(summary['unitsSDC'])
-            chargeRow.send_keys(summary['chargesSDC'])
-        else:
-            descRow.send_keys(summary['descriptionTrans'])
-            cptRow.send_keys(summary['cptCodeTrans'])
-            unitsRow.send_keys(summary['unitsTrans'])
-            chargeRow.send_keys(summary['chargesTrans'])
-
-    for rowNum in range(len(dates)):
-        if stopProcess(stopFlag): return
-        curDate = dates[rowNum]
-        month = curDate.month
-        day = curDate.day
-        year = curDate.year
-
-        rowNum = (rowNum * 2) + 1    # Index 1
-        for i in range(2):
-            rowNum += i
-            fmMonth = driver.find_element(
-                'xpath', f'//*[@id="FromDateMonth{rowNum}"]')
-            fmMonth.send_keys(month)
-            
-            fmDay = driver.find_element(
-                'xpath', f'//*[@id="FromDateDay{rowNum}"]')
-            fmDay.send_keys(day)
-            
-            fmYear = driver.find_element(
-                'xpath', f'//*[@id="FromDateYear{rowNum}"]')
-            fmYear.send_keys(year)
-            
-            toMonth = driver.find_element(
-                'xpath', f'//*[@id="ToDateMonth{rowNum}"]')
-            toMonth.send_keys(month)
-            
-            toDay = driver.find_element(
-                'xpath', f'//*[@id="ToDateDay{rowNum}"]')
-            toDay.send_keys(day)  
-            
-            toYear = driver.find_element(
-                'xpath', f'//*[@id="ToDateYear{rowNum}"]')
-            toYear.send_keys(year)
+        chargeRow.send_keys(summary['chargesSDC']) if rowNum % 2 == 1 else chargeRow.send_keys(summary['chargesTrans'])
 
     if len(dates) >= 11:
         removeRowButton = WebDriverWait(driver, 10).until(
