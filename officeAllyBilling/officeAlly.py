@@ -84,6 +84,6 @@ def officeAllyAutomate(form,
         statusLabel.configure(text=f"Error has occurred", text_color="red")
         statusLabel.update()
     finally:
+        callback(submissionSummary)
         pendingURL = 'https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Pending&Msg=RCL'
         driver.get(pendingURL)
-        callback(submissionSummary)
