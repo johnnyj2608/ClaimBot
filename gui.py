@@ -97,7 +97,7 @@ class ClaimbotGUI:
         self.listBoxFrame.grid_columnconfigure(0, weight=1)
 
         self.searchEntry = ctk.CTkEntry(self.listBoxFrame, width=25, state="disabled")
-        self.searchEntry.grid(row=0, column=0, sticky="ew", padx=(13, 0), pady=2)
+        self.searchEntry.grid(row=0, column=0, sticky="ew", padx=(20, 0), pady=2)
         self.searchEntry.bind("<KeyRelease>", self.searchList)
 
         self.listbox = Listbox(self.listBoxFrame, 
