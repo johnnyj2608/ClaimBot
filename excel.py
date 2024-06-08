@@ -17,8 +17,10 @@ def validateExcelFile(excelFilePath):
                 formSheet = sheet
             elif "submitted" in sheet.name.lower():
                 continue
-            else: 
+            elif "members" in sheet.name.lower(): 
                 memberSheet = sheet
+            else:
+                return {}, {}
 
         if formSheet.range('A1').value == 'Claimbot':
             form = {
