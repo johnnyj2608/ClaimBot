@@ -21,8 +21,6 @@ def cmsScript(driver,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
-    statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
-    statusLabel.update()
 
     summary = {
         'members': 0,
@@ -37,6 +35,9 @@ def cmsScript(driver,
         dates = getDatesFromWeekdays(start, end, member['schedule'], member['authStart'], member['authEnd'], 
                                              member['vacationStart'], member['vacationEnd'])
         memberName = member['lastName']+', '+member['firstName']
+
+        statusLabel.configure(text=f"{memberName} ({completedMembers}/{totalMembers})")
+        statusLabel.update()
 
         if not dates:
             summary['unsubmitted'].append(member['id']+'. '+memberName + ': No available dates')
@@ -56,8 +57,7 @@ def cmsScript(driver,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
         completedMembers += 1
-        statusLabel.configure(text=f"Completed Members: {completedMembers}/{totalMembers}")
-        statusLabel.update()
+        
     summary['members'] = completedMembers
     return summary
 
