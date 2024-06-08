@@ -353,8 +353,24 @@ class ClaimbotGUI:
 
         if range == 'start':
             self.cal.bind("<<CalendarSelected>>", self.startDateSelected)
+            try:
+                startMonth = int(self.startMonthEntry.get())
+                startDay = int(self.startDayEntry.get())
+                startYear = int(self.startYearEntry.get())
+                startDate = datetime(startYear, startMonth, startDay)
+            except ValueError:
+                return False, "Start date does not exist"
+            self.cal.selection_set(startDate.date())
         if range == 'end':
             self.cal.bind("<<CalendarSelected>>", self.endDateSelected)
+            try:
+                endMonth = int(self.endMonthEntry.get())
+                endDay = int(self.endDayEntry.get())
+                endYear = int(self.endYearEntry.get())
+                endDate = datetime(endYear, endMonth, endDay)
+            except ValueError:
+                return False, "End date does not exist"
+            self.cal.selection_set(endDate.date())
         return
 
     def startDateSelected(self, event=None):
