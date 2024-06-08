@@ -18,7 +18,7 @@ A Python script with a GUI to automatically submit health insurance claims on Of
 
 0. Acquire a copy of the Claimbot Template. Select the relevant claim form, provide values to the fields, and write your member's information
 ![1](https://github.com/johnnyj2608/ClaimBot/assets/54607786/7660badc-427c-4d1f-a47d-e8996c7d64e4)
-![2](https://github.com/johnnyj2608/ClaimBot/assets/54607786/d34dc950-c300-46c0-9c69-6e9ccd34d275)
+![2](https://github.com/johnnyj2608/ClaimBot/assets/54607786/7a028d5b-1ee5-4ddd-bba4-cb5a8bd9d96d)
 
 1. Select the Excel template to retrieve information from
 2. Select a range of members and dates to write claims for
@@ -50,4 +50,6 @@ After testing and receiving feedback from my coworker, the program is ready for 
 
 ## Project Screen Shots
 
-![claimbot](https://github.com/johnnyj2608/ClaimBot/assets/54607786/638ecfe1-efda-432b-862b-37dd79e2cfe2)
+![1](https://github.com/johnnyj2608/ClaimBot/assets/54607786/e46ad759-cc4b-47f7-8f35-c3c25c55f9a6)
+![2](https://github.com/johnnyj2608/ClaimBot/assets/54607786/4e2254fd-07cf-4016-a851-327803b3bc6c)
+
