@@ -5,7 +5,7 @@ from tkinter import Listbox
 from tkcalendar import Calendar
 from excel import validateExcelFile, ifExcelFileOpen
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
 from officeAllyBilling.officeAlly import officeAllyAutomate
 from threading import Thread
@@ -296,23 +296,27 @@ class ClaimbotGUI:
                     self.membersList.add(memberName)
                 self.selectAll()
 
+                today = datetime.now()
+                firstDay = today.replace(day=1)
+                lastDay = firstDay - timedelta(days=1)
+                
                 self.startMonthEntry.delete(0, "end")
-                self.startMonthEntry.insert(0, datetime.now().month)
+                self.startMonthEntry.insert(0, lastDay.month)
 
                 self.startDayEntry.delete(0, "end")
                 self.startDayEntry.insert(0, 1)
 
                 self.startYearEntry.delete(0, "end")
-                self.startYearEntry.insert(0, datetime.now().year)
+                self.startYearEntry.insert(0, lastDay.year)
 
                 self.endMonthEntry.delete(0, "end")
-                self.endMonthEntry.insert(0, datetime.now().month)
+                self.endMonthEntry.insert(0, lastDay.month)
 
                 self.endDayEntry.delete(0, "end")
-                self.endDayEntry.insert(0, datetime.now().day)
+                self.endDayEntry.insert(0, lastDay.day)
 
                 self.endYearEntry.delete(0, "end")
-                self.endYearEntry.insert(0, datetime.now().year)
+                self.endYearEntry.insert(0, lastDay.year)
             else:
                 self.folderLabel.configure(text="No members in template", text_color="red")
                 self.disableUserInteraction()
