@@ -227,38 +227,6 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         if rowNum > 11:
             addRowButton.click()
 
-        placeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
-        placeRow.send_keys(summary['servicePlace'])
-        
-        cptRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-        cptRow.send_keys(summary['cptCode'])
-        
-        modifierRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
-        modifierRow.send_keys(summary['modifier'])
-        
-        diagnosisRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
-        diagnosisRow.send_keys(summary['diagnosis'])
-        
-        chargeRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-        chargeRow.send_keys(summary['charges'])
-        
-        unitsRow = driver.find_element(
-            'xpath', 
-            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-        unitsRow.send_keys(summary['units'])
-        
-    for rowNum in range(len(dates)):
-        if stopProcess(stopFlag): return
         curDate = dates[rowNum]
         month = curDate.month
         day = curDate.day
@@ -293,6 +261,36 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_TO_DATE_OF_SVC_YEAR{rowNum}"]')
         toYear.send_keys(year)   
+
+        placeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_PLACE_OF_SVC{rowNum}"]')
+        placeRow.send_keys(summary['servicePlace'])
+        
+        cptRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
+        cptRow.send_keys(summary['cptCode'])
+        
+        modifierRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_MODIFIER_A{rowNum}"]')
+        modifierRow.send_keys(summary['modifier'])
+        
+        diagnosisRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_DIAG_CODE{rowNum}"]')
+        diagnosisRow.send_keys(summary['diagnosis'])
+        
+        chargeRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
+        chargeRow.send_keys(summary['charges'])
+        
+        unitsRow = driver.find_element(
+            'xpath', 
+            f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
+        unitsRow.send_keys(summary['units'])
 
     totalField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
