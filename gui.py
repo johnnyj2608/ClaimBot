@@ -60,7 +60,7 @@ class ClaimbotGUI:
         self.initDateFrame()
 
         self.checkboxFrame = ctk.CTkFrame(master=self.automateTab, fg_color="gray17")
-        self.checkboxFrame.grid(row=5, column=0, pady=0, padx=0)
+        self.checkboxFrame.grid(row=5, column=0, pady=0, padx=0, sticky="ew")
         self.selectFrame.grid_columnconfigure(0, weight=1)
 
         self.autoSubmit = ctk.BooleanVar()
@@ -68,7 +68,7 @@ class ClaimbotGUI:
                                                   text="Enable auto submit", 
                                                   variable=self.autoSubmit, 
                                                   state="disabled")
-        self.autoSubmitCheckbox.grid(row=0, column=0, pady=6, padx=0, sticky="w")
+        self.autoSubmitCheckbox.grid(row=0, column=0, pady=6, padx=60, sticky="w")
 
         self.autoDownload = ctk.BooleanVar()
         self.autoDownloadCheckbox = ctk.CTkCheckBox(master=self.checkboxFrame, 
@@ -76,7 +76,7 @@ class ClaimbotGUI:
                                                     variable=self.autoDownload, 
                                                     state="disabled", 
                                                     command=lambda: self.autoDownloadToggled())
-        self.autoDownloadCheckbox.grid(row=1, column=0, pady=6, padx=0, sticky="w")
+        self.autoDownloadCheckbox.grid(row=1, column=0, pady=6, padx=60, sticky="w")
 
         self.automateButton = ctk.CTkButton(master=self.automateTab, text="Automate", command=self.automate, state="disabled")
         self.automateButton.grid(row=7, column=0, pady=(6, 6), padx=10)
@@ -392,7 +392,11 @@ class ClaimbotGUI:
             if self.autoDownloadPath:
                 self.prevDir = os.path.dirname(self.autoDownloadPath)
                 folderName = os.path.basename(self.autoDownloadPath)
-                self.autoDownloadCheckbox.configure(text="Downloading to: "+folderName)
+
+                if len(folderName) > 15:
+                    folderName = folderName[:15] + '...'
+
+                self.autoDownloadCheckbox.configure(text="Saving to: "+folderName)
             else:
                 self.autoDownload.set(False)
         else:
