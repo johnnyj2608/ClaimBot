@@ -501,7 +501,7 @@ class ClaimbotGUI:
 
         if summary:
             successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
-            reimbursement = "{:.2f}".format(summary.get("total", 0))
+            reimbursement = "{:,.2f}".format(summary.get("total", 0))
             unsubmittedCount = str(len(summary.get('unsubmitted', [])))
             unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
             unsubmittedJoined = '\n'.join(summary['unsubmitted'])
