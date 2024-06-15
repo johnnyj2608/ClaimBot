@@ -36,7 +36,7 @@ def cmsScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         summary['members'] += 1
-        statusLabel.configure(text=f"{memberName} ({summary['members']+1}/{len(members)})")
+        statusLabel.configure(text=f"{memberName} ({summary['members']}/{len(members)})")
         statusLabel.update()
 
         if not dates:
