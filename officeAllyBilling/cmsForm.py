@@ -18,6 +18,7 @@ def cmsScript(driver,
               autoSubmit,
               autoDownload,
               statusLabel, 
+              updateSummary,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
@@ -56,9 +57,9 @@ def cmsScript(driver,
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-        completedMembers += 1
-        
-    summary['members'] = completedMembers
+        summary['members'] += 1
+        updateSummary(summary)
+
     return summary
 
 def cmsStored(driver, summary, lastName, firstName, birthDate):

@@ -18,7 +18,8 @@ def ubScript(driver,
               filePath,
               autoSubmit,
               autoDownload,
-              statusLabel, 
+              statusLabel,
+              updateSummary,
               stopFlag):
     
     totalMembers, completedMembers = len(members), 0
@@ -61,8 +62,9 @@ def ubScript(driver,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
             
-        completedMembers += 1
-    summary['members'] = completedMembers
+        summary['members'] += 1
+        updateSummary(summary)
+
     return summary
 
 def ubStored(driver, summary, memberSearch, memberSelect):

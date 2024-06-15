@@ -505,34 +505,38 @@ class ClaimbotGUI:
             self.autoDownloadPath,
             self.statusLabel,
             self.stopFlag,
+            self.updateSummary,
             self.automationCallback))
         
         thread.start()
 
-    def automationCallback(self, summary):
+    def automationCallback(self):
         self.runningFlag = False
         self.stopFlag.value = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
-        if summary:
-            successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
-            reimbursement = "{:,.2f}".format(summary.get("total", 0))
-            unsubmittedCount = str(len(summary.get('unsubmitted', [])))
-            unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
-            unsubmittedJoined = '\n'.join(summary['unsubmitted'])
+        self.tabView.set("     Summary     ")
 
-            self.membersLabel.configure(text=successRatio)
-            self.reimbursementLabel.configure(text=reimbursement)
-            self.unsubmittedLabel.configure(text=unsubmittedText)
-            self.detailsLabel.configure(text=unsubmittedJoined)
+    def updateSummary(self, summary):
+        successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
+        self.statusLabel.configure(text="Completed "+successRatio)
+        self.statusLabel.update()
 
-            self.membersLabel.update()
-            self.reimbursementLabel.update()
-            self.unsubmittedLabel.update()
-            self.detailsLabel.update()
+        reimbursement = "{:,.2f}".format(summary.get("total", 0))
+        unsubmittedCount = str(len(summary.get('unsubmitted', [])))
+        unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
+        unsubmittedJoined = '\n'.join(summary['unsubmitted'])
 
-            self.tabView.set("     Summary     ")
+        self.membersLabel.configure(text=successRatio)
+        self.reimbursementLabel.configure(text=reimbursement)
+        self.unsubmittedLabel.configure(text=unsubmittedText)
+        self.detailsLabel.configure(text=unsubmittedJoined)
+
+        self.membersLabel.update()
+        self.reimbursementLabel.update()
+        self.unsubmittedLabel.update()
+        self.detailsLabel.update()
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
