@@ -27,6 +27,7 @@ class ClaimbotGUI:
         self.prevDir = None
         self.autoDownloadPath = ''
         self.selectedMembers = []
+        self.membersIndexMap = {}
         self.membersList = set()
         self.members = []
         self.form = {}
@@ -290,10 +291,11 @@ class ClaimbotGUI:
 
                 self.clearSelection()
                 self.listbox.delete(0, 'end')
-                for member in self.members:
+                for index, member in enumerate(self.members):
                     memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                     self.membersList.add(memberName)
+                    self.membersIndexMap[memberName] = index
                 self.selectAll()
 
                 today = datetime.now()
@@ -436,16 +438,15 @@ class ClaimbotGUI:
         return val == "" or (val.isdigit() and len(val) <= 4)
     
     def validateInputs(self):
-        if not self.listbox.curselection():
+        if not self.curSelection:
             return False, "No members selected"
 
-        selectedIndices = set(self.listbox.curselection())
-        memberIndices = set(range(len(self.members)))
-        intersectedIndices = selectedIndices.intersection(memberIndices)
-
+        selectedSet = self.curSelection.intersection(self.membersList)
         self.selectedMembers = []
-        for i in intersectedIndices:
-            self.selectedMembers.append(self.members[i])
+        for member in self.members:
+            memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
+            if memberName in selectedSet:
+                self.selectedMembers.append(member)
 
         if not self.selectedMembers:
             return False, "No members in range"
