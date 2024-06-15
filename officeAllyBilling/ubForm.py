@@ -38,7 +38,8 @@ def ubScript(driver,
                                              member['vacationStart'], member['vacationEnd'])
         memberName = member['lastName']+', '+member['firstName']
 
-        statusLabel.configure(text=f"{memberName} ({completedMembers}/{totalMembers})")
+        summary['members'] += 1
+        statusLabel.configure(text=f"{memberName} ({summary['members']}/{len(members)})")
         statusLabel.update()
 
         if not dates:
@@ -62,7 +63,6 @@ def ubScript(driver,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
             
-        summary['members'] += 1
         updateSummary(summary)
 
     return summary
