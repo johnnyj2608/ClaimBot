@@ -10,6 +10,7 @@ from PIL import Image
 from officeAllyBilling.officeAlly import officeAllyAutomate
 from threading import Thread
 import ctypes
+import time
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 class ProcessStop:
@@ -265,12 +266,15 @@ class ClaimbotGUI:
 
         font = ("Helvetica", 14)
         self.scrollFrame = ctk.CTkScrollableFrame(master=self.summaryTab, height=250)
-        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")
+        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")        
+        self.scrollFrame.grid_columnconfigure(0, weight=1)
 
         self.detailsLabel = ctk.CTkLabel(self.scrollFrame, text="", font=font, wraplength=240, justify="left")
         self.detailsLabel.grid(row=4, column=0, padx=2, pady=0, sticky="w")
 
-        self.scrollFrame.grid_columnconfigure(0, weight=1)
+        font = ("Helvetica", 24)
+        self.timeLabel = ctk.CTkLabel(master=self.summaryTab, text="", font=font)
+        self.timeLabel.grid(row=4, column=0, pady=10, padx=10)
 
     def rightAlignWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
         screen_width = Screen.winfo_screenwidth()
@@ -495,6 +499,8 @@ class ClaimbotGUI:
         self.disableUserInteraction()
         self.automateButton.configure(state="normal")  
 
+        self.startTime = time.time()
+
         thread = Thread(target = officeAllyAutomate, args=(
             self.form, 
             self.selectedMembers,
@@ -516,13 +522,33 @@ class ClaimbotGUI:
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
+        elapsedTime = time.time() - self.startTime
+        elapsedTime = timedelta(seconds=int(elapsedTime))
+        parts = []
+         
+        if elapsedTime.seconds >= 3600:
+            hours = elapsedTime.seconds // 3600
+            parts.append(f"{hours}h")
+
+        if elapsedTime.seconds >= 60:
+            minutes = (elapsedTime.seconds // 60) % 60
+            parts.append(f"{minutes}m")
+
+        seconds = elapsedTime.seconds % 60
+        parts.append(f"{seconds}s")
+
+        formattedTime = " ".join(parts)
+
+        self.timeLabel.configure(text="Completed in "+formattedTime)
+        self.timeLabel.update()
+
+        self.statusLabel.configure(text="Completed in "+formattedTime)
+        self.statusLabel.update()
+
         self.tabView.set("     Summary     ")
 
     def updateSummary(self, summary):
         successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
-        self.statusLabel.configure(text="Completed "+successRatio)
-        self.statusLabel.update()
-
         reimbursement = "{:,.2f}".format(summary.get("total", 0))
         unsubmittedCount = str(len(summary.get('unsubmitted', [])))
         unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
