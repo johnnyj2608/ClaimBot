@@ -39,7 +39,7 @@ def ubScript(driver,
         memberName = member['lastName']+', '+member['firstName']
 
         summary['members'] += 1
-        statusLabel.configure(text=f"{memberName} ({summary['members']}/{len(members)})")
+        statusLabel.configure(text=f"{member['id']}. {memberName} ({summary['members']}/{len(members)})")
         statusLabel.update()
 
         if not dates:
