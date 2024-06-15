@@ -118,7 +118,6 @@ class ClaimbotGUI:
         self.listbox.bind("<MouseWheel>", self.mouseScrollEvent)
         self.listbox.bind("<<ListboxSelect>>", self.onSelect)
         self.curSelection = set()
-        self.prevSelection = set()
 
         self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=4)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
@@ -141,12 +140,10 @@ class ClaimbotGUI:
     def selectAll(self):
         self.listbox.selection_set(0, 'end')
         self.curSelection = set(self.listbox.get(0, 'end'))
-        self.prevSelection = set(self.listbox.get(0, 'end'))
 
     def clearSelection(self):
         self.listbox.selection_clear(0, 'end')
         self.curSelection.clear()
-        self.prevSelection.clear()
 
     def searchList(self, event):
         searchText = self.searchEntry.get().lower()
@@ -166,15 +163,14 @@ class ClaimbotGUI:
         curSelected = [self.listbox.get(index) for index in self.listbox.curselection()]
         curSelected = set(curSelected)
 
-        deselected = self.prevSelection - curSelected - filtered
-        selected = curSelected - self.prevSelection - filtered
-        
+        deselected = self.curSelection - curSelected - filtered
+        selected = curSelected - self.curSelection - filtered
+
         if deselected:
             self.curSelection.remove(deselected.pop())
         else:
             self.curSelection.add(selected.pop())
-        self.prevSelection = set(curSelected).copy()
-            
+
         self.listbox.after(100, lambda: self.searchEntry.focus_set())
         
     def mouseScrollEvent(self, event):
