@@ -56,13 +56,12 @@ def ubScript(driver,
                 summary['success'] += 1
                 summary['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
-            else:
-                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
-            recordClaims(filePath, 
+                recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-            
+            else:
+                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
         updateSummary(summary)
 
     return summary
