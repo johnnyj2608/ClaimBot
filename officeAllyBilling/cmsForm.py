@@ -18,10 +18,9 @@ def cmsScript(driver,
               autoSubmit,
               autoDownload,
               statusLabel, 
+              updateSummary,
               stopFlag):
     
-    totalMembers, completedMembers = len(members), 0
-
     summary = {
         'members': 0,
         'success': 0,
@@ -36,7 +35,8 @@ def cmsScript(driver,
                                              member['vacationStart'], member['vacationEnd'])
         memberName = member['lastName']+', '+member['firstName']
 
-        statusLabel.configure(text=f"{memberName} ({completedMembers}/{totalMembers})")
+        summary['members'] += 1
+        statusLabel.configure(text=f"{member['id']}. {memberName} ({summary['members']}/{len(members)})")
         statusLabel.update()
 
         if not dates:
@@ -50,15 +50,15 @@ def cmsScript(driver,
                 summary['success'] += 1
                 summary['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
-            else:
-                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
-            recordClaims(filePath, 
+                recordClaims(filePath, 
                          memberName,
                          start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
                          total)
-        completedMembers += 1
-        
-    summary['members'] = completedMembers
+            else:
+                summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
+            
+        updateSummary(summary)
+
     return summary
 
 def cmsStored(driver, summary, lastName, firstName, birthDate):

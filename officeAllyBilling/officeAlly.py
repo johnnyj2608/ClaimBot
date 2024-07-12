@@ -36,7 +36,8 @@ def officeAllyAutomate(form,
                        autoSubmit,
                        autoDownloadPath,
                        statusLabel,
-                       stopFlag, 
+                       stopFlag,
+                       updateSummary, 
                        callback):
     try:     
         officeAllyURL = 'https://www.officeally.com/secure_oa.asp'
@@ -56,9 +57,8 @@ def officeAllyAutomate(form,
 
         login(driver, officeAllyURL, form['username'], form['password'])
 
-        submissionSummary = None
         if form['form'] == "Professional (CMS)":
-            submissionSummary = cmsScript(driver,
+            cmsScript(driver,
                       form,
                       members,
                       start, 
@@ -67,9 +67,10 @@ def officeAllyAutomate(form,
                       autoSubmit,
                       autoDownloadPath,
                       statusLabel,
+                      updateSummary,
                       stopFlag)
         else:
-            submissionSummary = ubScript(driver,
+            ubScript(driver,
                       form,
                       members,
                       start, 
@@ -78,11 +79,8 @@ def officeAllyAutomate(form,
                       autoSubmit,
                       autoDownloadPath,
                       statusLabel,
+                      updateSummary,
                       stopFlag)
-
-        successRatio = str(submissionSummary.get("success", 0)) + ' / ' + str(submissionSummary.get("members", 0))
-        statusLabel.configure(text="Completed "+successRatio)
-        statusLabel.update()
 
     except Exception as e:
         print("An error occurred:", str(e))
@@ -90,6 +88,6 @@ def officeAllyAutomate(form,
         statusLabel.configure(text=f"Error has occurred", text_color="red")
         statusLabel.update()
     finally:
-        callback(submissionSummary)
+        callback()
         pendingURL = 'https://www.officeally.com/secure_oa.asp?GOTO=OnlineEntry&TaskAction=Pending&Msg=RCL'
         driver.get(pendingURL)

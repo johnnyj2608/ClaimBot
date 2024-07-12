@@ -10,6 +10,7 @@ from PIL import Image
 from officeAllyBilling.officeAlly import officeAllyAutomate
 from threading import Thread
 import ctypes
+import time
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 class ProcessStop:
@@ -26,6 +27,7 @@ class ClaimbotGUI:
         self.prevDir = None
         self.autoDownloadPath = ''
         self.selectedMembers = []
+        self.membersIndexMap = {}
         self.membersList = set()
         self.members = []
         self.form = {}
@@ -117,7 +119,6 @@ class ClaimbotGUI:
         self.listbox.bind("<MouseWheel>", self.mouseScrollEvent)
         self.listbox.bind("<<ListboxSelect>>", self.onSelect)
         self.curSelection = set()
-        self.prevSelection = set()
 
         self.scrollbar = ctk.CTkScrollbar(self.listBoxFrame, height=4)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
@@ -140,12 +141,10 @@ class ClaimbotGUI:
     def selectAll(self):
         self.listbox.selection_set(0, 'end')
         self.curSelection = set(self.listbox.get(0, 'end'))
-        self.prevSelection = set(self.listbox.get(0, 'end'))
 
     def clearSelection(self):
         self.listbox.selection_clear(0, 'end')
         self.curSelection.clear()
-        self.prevSelection.clear()
 
     def searchList(self, event):
         searchText = self.searchEntry.get().lower()
@@ -165,15 +164,14 @@ class ClaimbotGUI:
         curSelected = [self.listbox.get(index) for index in self.listbox.curselection()]
         curSelected = set(curSelected)
 
-        deselected = self.prevSelection - curSelected - filtered
-        selected = curSelected - self.prevSelection - filtered
-        
+        deselected = self.curSelection - curSelected - filtered
+        selected = curSelected - self.curSelection - filtered
+
         if deselected:
             self.curSelection.remove(deselected.pop())
         else:
             self.curSelection.add(selected.pop())
-        self.prevSelection = set(curSelected).copy()
-            
+
         self.listbox.after(100, lambda: self.searchEntry.focus_set())
         
     def mouseScrollEvent(self, event):
@@ -265,12 +263,15 @@ class ClaimbotGUI:
 
         font = ("Helvetica", 14)
         self.scrollFrame = ctk.CTkScrollableFrame(master=self.summaryTab, height=250)
-        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")
+        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")        
+        self.scrollFrame.grid_columnconfigure(0, weight=1)
 
         self.detailsLabel = ctk.CTkLabel(self.scrollFrame, text="", font=font, wraplength=240, justify="left")
         self.detailsLabel.grid(row=4, column=0, padx=2, pady=0, sticky="w")
 
-        self.scrollFrame.grid_columnconfigure(0, weight=1)
+        font = ("Helvetica", 24)
+        self.timeLabel = ctk.CTkLabel(master=self.summaryTab, text="", font=font)
+        self.timeLabel.grid(row=4, column=0, pady=10, padx=10)
 
     def rightAlignWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
         screen_width = Screen.winfo_screenwidth()
@@ -290,10 +291,11 @@ class ClaimbotGUI:
 
                 self.clearSelection()
                 self.listbox.delete(0, 'end')
-                for member in self.members:
+                for index, member in enumerate(self.members):
                     memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
                     self.listbox.insert('end', memberName)
                     self.membersList.add(memberName)
+                    self.membersIndexMap[memberName] = index
                 self.selectAll()
 
                 today = datetime.now()
@@ -436,16 +438,15 @@ class ClaimbotGUI:
         return val == "" or (val.isdigit() and len(val) <= 4)
     
     def validateInputs(self):
-        if not self.listbox.curselection():
+        if not self.curSelection:
             return False, "No members selected"
 
-        selectedIndices = set(self.listbox.curselection())
-        memberIndices = set(range(len(self.members)))
-        intersectedIndices = selectedIndices.intersection(memberIndices)
-
+        selectedSet = self.curSelection.intersection(self.membersList)
         self.selectedMembers = []
-        for i in intersectedIndices:
-            self.selectedMembers.append(self.members[i])
+        for member in self.members:
+            memberName = f" {member['id']}. {member['lastName']}, {member['firstName']}"
+            if memberName in selectedSet:
+                self.selectedMembers.append(member)
 
         if not self.selectedMembers:
             return False, "No members in range"
@@ -495,6 +496,8 @@ class ClaimbotGUI:
         self.disableUserInteraction()
         self.automateButton.configure(state="normal")  
 
+        self.startTime = time.time()
+
         thread = Thread(target = officeAllyAutomate, args=(
             self.form, 
             self.selectedMembers,
@@ -505,34 +508,58 @@ class ClaimbotGUI:
             self.autoDownloadPath,
             self.statusLabel,
             self.stopFlag,
+            self.updateSummary,
             self.automationCallback))
         
         thread.start()
 
-    def automationCallback(self, summary):
+    def automationCallback(self):
         self.runningFlag = False
         self.stopFlag.value = False
         self.enableUserInteraction()
         self.automateButton.configure(text="Automate", fg_color='#1f538d', hover_color='#14375e')
 
-        if summary:
-            successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
-            reimbursement = "{:,.2f}".format(summary.get("total", 0))
-            unsubmittedCount = str(len(summary.get('unsubmitted', [])))
-            unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
-            unsubmittedJoined = '\n'.join(summary['unsubmitted'])
+        elapsedTime = time.time() - self.startTime
+        elapsedTime = timedelta(seconds=int(elapsedTime))
+        parts = []
+         
+        if elapsedTime.seconds >= 3600:
+            hours = elapsedTime.seconds // 3600
+            parts.append(f"{hours}h")
 
-            self.membersLabel.configure(text=successRatio)
-            self.reimbursementLabel.configure(text=reimbursement)
-            self.unsubmittedLabel.configure(text=unsubmittedText)
-            self.detailsLabel.configure(text=unsubmittedJoined)
+        if elapsedTime.seconds >= 60:
+            minutes = (elapsedTime.seconds // 60) % 60
+            parts.append(f"{minutes}m")
 
-            self.membersLabel.update()
-            self.reimbursementLabel.update()
-            self.unsubmittedLabel.update()
-            self.detailsLabel.update()
+        seconds = elapsedTime.seconds % 60
+        parts.append(f"{seconds}s")
 
-            self.tabView.set("     Summary     ")
+        formattedTime = " ".join(parts)
+
+        self.timeLabel.configure(text="Completed in "+formattedTime)
+        self.timeLabel.update()
+
+        self.statusLabel.configure(text="Completed in "+formattedTime)
+        self.statusLabel.update()
+
+        self.tabView.set("     Summary     ")
+
+    def updateSummary(self, summary):
+        successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
+        reimbursement = "{:,.2f}".format(summary.get("total", 0))
+        unsubmittedCount = str(len(summary.get('unsubmitted', [])))
+        unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
+        unsubmittedJoined = '\n'.join(summary['unsubmitted'])
+
+        self.membersLabel.configure(text=successRatio)
+        self.reimbursementLabel.configure(text=reimbursement)
+        self.unsubmittedLabel.configure(text=unsubmittedText)
+        self.detailsLabel.configure(text=unsubmittedJoined)
+
+        self.membersLabel.update()
+        self.reimbursementLabel.update()
+        self.unsubmittedLabel.update()
+        self.detailsLabel.update()
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
