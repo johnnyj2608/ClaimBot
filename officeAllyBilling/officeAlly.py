@@ -1,15 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from .claimFormsHelper import stopProcess
 from .cmsForm import cmsScript
 from .ubForm import ubScript
 import time
 
-def login(driver, officeAllyURL, username, password):
-    if username == None or password == None:
-        while driver.current_url != officeAllyURL:
-            time.sleep(1)
-    else:
+def login(driver, officeAllyURL, username, password, stopFlag):
+    if username and password:
         usernameField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
         )
@@ -23,6 +21,9 @@ def login(driver, officeAllyURL, username, password):
         usernameField.send_keys(username)
         passwordField.send_keys(password)
         loginButton.click()
+    while driver.current_url != officeAllyURL:
+        if stopProcess(stopFlag): return
+        time.sleep(1)
 
 def formatPath(path):
     if path:
@@ -55,7 +56,7 @@ def officeAllyAutomate(form,
         driver.get(officeAllyURL)
         driver.maximize_window()
 
-        login(driver, officeAllyURL, form['username'], form['password'])
+        login(driver, officeAllyURL, form['username'], form['password'], stopFlag)
 
         if form['form'] == "Professional (CMS)":
             cmsScript(driver,
