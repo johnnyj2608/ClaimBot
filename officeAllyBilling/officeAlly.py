@@ -3,21 +3,26 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .cmsForm import cmsScript
 from .ubForm import ubScript
+import time
 
-def login(driver, username, password):
-    usernameField = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
-    )
-    passwordField = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '//*[@id="password"]'))
-    )
-    loginButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
-    )
+def login(driver, officeAllyURL, username, password):
+    if username == None or password == None:
+        while driver.current_url != officeAllyURL:
+            time.sleep(1)
+    else:
+        usernameField = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
+        )
+        passwordField = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="password"]'))
+        )
+        loginButton = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
+        )
 
-    usernameField.send_keys(username)
-    passwordField.send_keys(password)
-    loginButton.click()
+        usernameField.send_keys(username)
+        passwordField.send_keys(password)
+        loginButton.click()
 
 def formatPath(path):
     if path:
@@ -34,7 +39,7 @@ def officeAllyAutomate(form,
                        stopFlag, 
                        callback):
     try:     
-        office_ally = 'https://www.officeally.com/secure_oa.asp'
+        officeAllyURL = 'https://www.officeally.com/secure_oa.asp'
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
@@ -46,10 +51,10 @@ def officeAllyAutomate(form,
             })
 
         driver = webdriver.Chrome(options=options)
-        driver.get(office_ally)
+        driver.get(officeAllyURL)
         driver.maximize_window()
 
-        login(driver, form['username'], form['password'])
+        login(driver, officeAllyURL, form['username'], form['password'])
 
         submissionSummary = None
         if form['form'] == "Professional (CMS)":
