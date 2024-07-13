@@ -22,8 +22,6 @@ def ubScript(driver,
               updateSummary,
               stopFlag):
     
-    totalMembers, completedMembers = len(members), 0
-    
     summary = {
         'members': 0,
         'success': 0,
