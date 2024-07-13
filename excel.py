@@ -41,6 +41,8 @@ def validateExcelFile(excelFilePath):
                     "charges": formSheet.range('B15').value,
                     "units": formSheet.range('B16').value,
                 })
+                if not form['modifier']:
+                    form['modifier'] = ""
             elif form['form'] == 'Institutional (UB)':
                 form.update({
                     "physician": formSheet.range('B9').value,
