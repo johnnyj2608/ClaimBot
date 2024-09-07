@@ -294,6 +294,7 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
 
     totalField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
+    totalField.click()
     total = totalField.get_attribute("value")
 
     if stopProcess(stopFlag): return
