@@ -12,6 +12,9 @@ A Python script with a GUI to automatically submit health insurance claims on Of
   
 3. XlWings: Stores data and allows easy updates to member or default values of claims. Uses Pandas to extract the information and convert the information to dictionaries. After each claim is submitted, the claim date, member name, range of dates, and amount will be recorded on the Claims tab.
 
+### Demo Video
+[![Watch the demo](https://img.youtube.com/vi/kw0KtUPqezA/0.jpg)](https://www.youtube.com/watch?v=kw0KtUPqezA)
+
 ## How To Use
 
 ### Excel values must be identical to stored info (capitalization, [123], etc.)
