@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from .claimFormsHelper import stopProcess
 from .cmsForm import cmsScript
 from .ubForm import ubScript
@@ -9,13 +10,13 @@ import time
 def login(driver, officeAllyURL, username, password, stopFlag):
     if username and password:
         usernameField = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '//*[@id="username"]'))
+            EC.element_to_be_clickable((By.ID, "username"))
         )
         passwordField = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '//*[@id="password"]'))
+            EC.element_to_be_clickable((By.ID, "password"))
         )
         loginButton = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(('xpath', '/html/body/main/section/div/div/div/form/div[2]/button'))
+            EC.element_to_be_clickable((By.NAME, "action"))
         )
 
         usernameField.send_keys(username)
