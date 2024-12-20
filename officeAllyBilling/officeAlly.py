@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from .claimFormsHelper import stopProcess
 from .cmsForm import cmsScript
 from .ubForm import ubScript
@@ -58,6 +59,15 @@ def officeAllyAutomate(form,
         driver.maximize_window()
 
         login(driver, officeAllyURL, form['username'], form['password'], stopFlag)
+
+        while True:
+            try:
+                close_button = WebDriverWait(driver, 3).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "[id^='pendo-close-guide']"))
+                )
+                close_button.click()
+            except (NoSuchElementException, TimeoutException):
+                break
 
         if form['form'] == "Professional (CMS)":
             cmsScript(driver,
