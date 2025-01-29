@@ -300,25 +300,24 @@ class ClaimbotGUI:
 
                 today = datetime.now()
                 firstDay = today.replace(day=1)
-                lastDay = firstDay - timedelta(days=1)
                 
                 self.startMonthEntry.delete(0, "end")
-                self.startMonthEntry.insert(0, lastDay.month)
+                self.startMonthEntry.insert(0, firstDay.month)
 
                 self.startDayEntry.delete(0, "end")
                 self.startDayEntry.insert(0, 1)
 
                 self.startYearEntry.delete(0, "end")
-                self.startYearEntry.insert(0, lastDay.year)
+                self.startYearEntry.insert(0, firstDay.year)
 
                 self.endMonthEntry.delete(0, "end")
-                self.endMonthEntry.insert(0, lastDay.month)
+                self.endMonthEntry.insert(0, today.month)
 
                 self.endDayEntry.delete(0, "end")
-                self.endDayEntry.insert(0, lastDay.day)
+                self.endDayEntry.insert(0, today.day)
 
                 self.endYearEntry.delete(0, "end")
-                self.endYearEntry.insert(0, lastDay.year)
+                self.endYearEntry.insert(0, today.year)
             else:
                 self.folderLabel.configure(text="No members in template", text_color="red")
                 self.disableUserInteraction()
