@@ -35,11 +35,14 @@ def validateExcelFile(excelFilePath):
                     "renderingProvider": formSheet.range('B9').value,
                     "facilities": formSheet.range('B10').value,
                     "servicePlace": formSheet.range('B11').value,
-                    "cptCode": formSheet.range('B12').value,
-                    "modifier": formSheet.range('B13').value,
-                    "diagnosis": formSheet.range('B14').value,
-                    "charges": formSheet.range('B15').value,
-                    "units": formSheet.range('B16').value,
+                    "modifier": formSheet.range('B12').value,
+                    "diagnosis": formSheet.range('B13').value,
+                    "cptCode_1": formSheet.range('B14').value,
+                    "charges_1": formSheet.range('B15').value,
+                    "units_1": formSheet.range('B16').value,
+                    "cptCode_2": formSheet.range('B17').value,
+                    "charges_2": formSheet.range('B18').value,
+                    "units_2": formSheet.range('B19').value,
                 })
                 if not form['modifier']:
                     form['modifier'] = ""
@@ -48,14 +51,14 @@ def validateExcelFile(excelFilePath):
                     "physician": formSheet.range('B9').value,
                     "billType": formSheet.range('B10').value,
                     "revenueCode": formSheet.range('B11').value,
-                    "descriptionSDC": formSheet.range('B12').value,
-                    "cptCodeSDC": formSheet.range('B13').value,
-                    "chargesSDC": formSheet.range('B14').value,
-                    "unitsSDC": formSheet.range('B15').value,
-                    "descriptionTrans": formSheet.range('B16').value,
-                    "cptCodeTrans": formSheet.range('B17').value,
-                    "chargesTrans": formSheet.range('B18').value,
-                    "unitsTrans": formSheet.range('B19').value,
+                    "description_1": formSheet.range('B12').value,
+                    "cptCode_1": formSheet.range('B13').value,
+                    "charges_1": formSheet.range('B14').value,
+                    "units_1": formSheet.range('B15').value,
+                    "description_2": formSheet.range('B16').value,
+                    "cptCode_2": formSheet.range('B17').value,
+                    "charges_2": formSheet.range('B18').value,
+                    "units_2": formSheet.range('B19').value,
                 })
         else:
             return {}, {}

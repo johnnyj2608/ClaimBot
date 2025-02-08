@@ -204,9 +204,8 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
     dxField.send_keys(dxCode)
 
     rowMultiplier = 1
-    if summary['descriptionTrans'] and summary['cptCodeTrans'] and summary['unitsTrans'] and summary['chargesTrans']:
+    if summary['description_2'] and summary['cptCode_2'] and summary['units_2'] and summary['charges_2']:
         rowMultiplier *= 2
-    print(dates)
     
     for rowNum in range(1, (len(dates)*rowMultiplier)+1):
         if stopProcess(stopFlag): return
@@ -222,11 +221,11 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
 
         descRow = driver.find_element(
             'xpath', f'//*[@id="Description{rowNum}"]')
-        descRow.send_keys(summary['descriptionSDC']) if rowMultiplier == 1 or rowNum % 2 == 1 else descRow.send_keys(summary['descriptionTrans'])
+        descRow.send_keys(summary['description_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else descRow.send_keys(summary['description_2'])
 
         cptRow = driver.find_element(
             'xpath', f'//*[@id="Rate{rowNum}"]')
-        cptRow.send_keys(summary['cptCodeSDC']) if rowMultiplier == 1 or rowNum % 2 == 1 else cptRow.send_keys(summary['cptCodeTrans'])
+        cptRow.send_keys(summary['cptCode_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else cptRow.send_keys(summary['cptCode_2'])
         
         fmMonth = driver.find_element(
             'xpath', f'//*[@id="FromDateMonth{rowNum}"]')
@@ -254,11 +253,11 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
 
         unitsRow = driver.find_element(
             'xpath', f'//*[@id="Units{rowNum}"]')
-        unitsRow.send_keys(summary['unitsSDC']) if rowMultiplier == 1 or rowNum % 2 == 1 else unitsRow.send_keys(summary['unitsTrans'])
+        unitsRow.send_keys(summary['units_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else unitsRow.send_keys(summary['units_2'])
 
         chargeRow = driver.find_element(
             'xpath', f'//*[@id="TotalCharge{rowNum}"]')
-        chargeRow.send_keys(summary['chargesSDC']) if rowMultiplier == 1 or rowNum % 2 == 1 else chargeRow.send_keys(summary['chargesTrans'])
+        chargeRow.send_keys(summary['charges_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else chargeRow.send_keys(summary['charges_2'])
 
     if len(dates)*rowMultiplier >= 22:
         removeRowButton = WebDriverWait(driver, 10).until(

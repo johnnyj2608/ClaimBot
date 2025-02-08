@@ -221,13 +221,17 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
 
     addRowButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(('xpath', '//*[@id="btnAddRow"]')))
-
-    for rowNum in range(len(dates)):
+    
+    rowMultiplier = 1
+    if summary['cptCode_2'] and summary['units_2'] and summary['charges_2']:
+        rowMultiplier *= 2
+    
+    for rowNum in range((len(dates)*rowMultiplier)):
         if stopProcess(stopFlag): return
         if rowNum > 11:
             addRowButton.click()
 
-        curDate = dates[rowNum]
+        curDate = dates[(rowNum) // rowMultiplier]
         month = curDate.month
         day = curDate.day
         year = curDate.year
@@ -270,7 +274,7 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         cptRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_CPT_CODE{rowNum}"]')
-        cptRow.send_keys(summary['cptCode'])
+        cptRow.send_keys(summary['cptCode_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else cptRow.send_keys(summary['cptCode_2'])
         
         modifierRow = driver.find_element(
             'xpath', 
@@ -285,12 +289,12 @@ def cmsForm(driver, summary, authID, dxCode, dates, autoSubmit, stopFlag):
         chargeRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_DOS_CHRG{rowNum}"]')
-        chargeRow.send_keys(summary['charges'])
+        chargeRow.send_keys(summary['charges_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else chargeRow.send_keys(summary['charges_2'])
         
         unitsRow = driver.find_element(
             'xpath', 
             f'//*[@id="ctl00_phFolderContent_ucHCFA_ucHCFALineItem_ucClaimLineItem_UNITS{rowNum}"]')
-        unitsRow.send_keys(summary['units'])
+        unitsRow.send_keys(summary['units_1']) if rowMultiplier == 1 or rowNum % 2 == 1 else unitsRow.send_keys(summary['units_2'])
 
     totalField = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucHCFA_TOTAL_CHARGE"]')))
