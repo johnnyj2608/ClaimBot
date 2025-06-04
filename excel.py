@@ -60,6 +60,10 @@ def validateExcelFile(excelFilePath):
                     "charges_2": formSheet.range('B18').value,
                     "units_2": formSheet.range('B19').value,
                 })
+                if formSheet.range('E2').value:
+                    form["qual"] = formSheet.range('E2').value
+                if formSheet.range('E3').value:
+                    form["qual_code"] = formSheet.range('E3').value
         else:
             return {}, {}
         

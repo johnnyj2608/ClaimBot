@@ -203,6 +203,15 @@ def ubForm(driver, summary, dxCode, dates, autoSubmit, stopFlag):
         EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_PrimmaryDiagnosisCode"]')))
     dxField.send_keys(dxCode)
 
+    if summary.get("qual"):
+        qualField = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_CCQualifier1"]')))
+        qualField.send_keys(summary.get("qual"))
+    if summary.get("qual_code"):
+        qualField = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(('xpath', '//*[@id="ctl00_phFolderContent_ucUBForm_CCCode1"]')))
+        qualField.send_keys(summary.get("qual_code"))
+
     rowMultiplier = 1
     if summary['description_2'] and summary['cptCode_2'] and summary['units_2'] and summary['charges_2']:
         rowMultiplier *= 2
