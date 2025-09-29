@@ -2,7 +2,7 @@
 
 Claimbot
 
-A Python script with a GUI to automatically submit health insurance claims on Office Ally
+A Python script with a GUI to automatically submit health insurance claims on Office Ally. Reduced claim submission time from 10 to 1 minute per member, boosting efficiency by 90%, eliminating ~150 hours of monthly overtime, and saving ~$40K annually for the billing department.
 
 3 main components: Selenium, CustomTKinter, and XlWings
 
@@ -10,7 +10,7 @@ A Python script with a GUI to automatically submit health insurance claims on Of
 
 2. CustomTkinter: User-friendly GUI to select options for automating claims. Utilized threading to allow concurrent use of the GUI to "stop automation."
   
-3. XlWings: Stores data and allows easy updates to member or default values of claims. Uses Pandas to extract the information and convert the information to dictionaries. After each claim is submitted, the claim date, member name, range of dates, and amount will be recorded on the Claims tab.
+3. XlWings: Stores data and allows easy updates to member or default values of claims. Uses Pandas to extract the information and convert it to dictionaries. After each claim is submitted, the claim date, member name, range of dates, and amount will be recorded on the Claims tab.
 
 ### Demo Video
 [![Watch the demo](https://img.youtube.com/vi/kw0KtUPqezA/0.jpg)](https://www.youtube.com/watch?v=kw0KtUPqezA)
