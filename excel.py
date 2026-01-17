@@ -96,7 +96,7 @@ def validateExcelFile(excelFilePath):
                 'lastName': row['Last Name'],
                 'firstName': row['First Name'],
                 'birthDate': row['Birth Date'],
-                'authID': str(row['Auth #']).split('.')[0],
+                'authID': str(row['Auth #']).split('.')[0].strip(),
                 'dxCode': row['Dx Code'],
                 'schedule': str(row['Schedule']),
                 'authStart': row['Start'],
