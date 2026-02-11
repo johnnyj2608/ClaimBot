@@ -4,7 +4,6 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from .claimFormsHelper import *
-from excel import recordClaims
 import time
 import os
 import glob
@@ -14,7 +13,6 @@ def cmsScript(driver,
               members, 
               start, 
               end, 
-              filePath,
               autoSubmit,
               autoDownload,
               statusLabel, 
@@ -50,10 +48,6 @@ def cmsScript(driver,
                 summary['success'] += 1
                 summary['total'] += total
                 cmsDownload(driver, autoDownload, memberName, stopFlag)
-                recordClaims(filePath, 
-                         memberName,
-                         start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
-                         total)
             else:
                 summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
             
@@ -98,17 +92,19 @@ def cmsStored(driver, summary, lastName, firstName, birthDate):
     found = False
     try:
         while True:
-            memberTable = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable(('xpath', '//*[@id="ctl03_popupBase_grvPopup"]/tbody'))
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located(('xpath', '//*[@id="ctl03_popupBase_grvPopup"]/tbody'))
             )
-            members = memberTable.find_elements('xpath', "./*[not(contains(@class, 'GridViewPager'))]")
-            for row in range(1, len(members)):
-                row += 1
+
+            members = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located(('xpath', '//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[not(contains(@class,"GridViewPager"))]'))
+            )
+            for row in range(2, len(members)+1):
                 rowName = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[2]'))
+                    EC.presence_of_element_located(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[2]'))
                 )
                 rowDoB = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[4]'))
+                    EC.presence_of_element_located(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[{row}]/td[4]'))
                 )
                 if rowName.text == lastName and rowDoB.text == birthDate:
                     rowSelect = WebDriverWait(driver, 10).until(
@@ -120,13 +116,20 @@ def cmsStored(driver, summary, lastName, firstName, birthDate):
             if found:
                 break
             page += 1
-            nextPage = WebDriverWait(driver, 2).until(
-                EC.element_to_be_clickable(('xpath', f'//*[@id="ctl03_popupBase_grvPopup"]/tbody/tr[12]/td/table/tbody/tr/td[{page}]/a'))
+            nextPage = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((
+                    'xpath',
+                    f'//*[@id="ctl03_popupBase_grvPopup"]//a[text()="{page}"]'
+                ))
             )
             nextPage.click()
-    except:
+            WebDriverWait(driver, 10).until(
+                EC.staleness_of(members[0])
+            )
+    except Exception as e:
         memberName = lastName+', '+firstName+' ['+birthDate+']'
         print(f"Element with visible text '{memberName}' not found.")
+        print("Error:", e)
         driver.close()
         return False
     finally:

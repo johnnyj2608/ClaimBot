@@ -5,7 +5,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from .claimFormsHelper import *
-from excel import recordClaims
 import time
 import glob
 import os
@@ -15,7 +14,6 @@ def ubScript(driver,
               members, 
               start, 
               end, 
-              filePath,
               autoSubmit,
               autoDownload,
               statusLabel,
@@ -54,10 +52,6 @@ def ubScript(driver,
                 summary['success'] += 1
                 summary['total'] += total
                 ubDownload(driver, autoDownload, memberName, stopFlag)
-                recordClaims(filePath, 
-                         memberName,
-                         start.strftime("%#m/%#d/%y")+' - '+end.strftime("%#m/%#d/%y"),
-                         total)
             else:
                 summary['unsubmitted'].append(member['id']+'. '+memberName + ': Failed to submit')
         updateSummary(summary)
