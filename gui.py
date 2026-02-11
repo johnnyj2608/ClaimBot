@@ -262,12 +262,16 @@ class ClaimbotGUI:
         self.unsubmittedLabel.grid(row=2, column=0, columnspan=2, pady=(20, 5), padx=10)
 
         font = ("Helvetica", 14)
-        self.scrollFrame = ctk.CTkScrollableFrame(master=self.summaryTab, height=250)
-        self.scrollFrame.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew")        
-        self.scrollFrame.grid_columnconfigure(0, weight=1)
-
-        self.detailsLabel = ctk.CTkLabel(self.scrollFrame, text="", font=font, wraplength=240, justify="left")
-        self.detailsLabel.grid(row=4, column=0, padx=2, pady=0, sticky="w")
+        self.detailsText = ctk.CTkTextbox(
+            master=self.summaryTab,
+            font=font,
+            wrap="word",
+            height=325,
+            border_width=0,
+            fg_color="gray14",
+        )
+        self.detailsText.grid(row=3, column=0, columnspan=2, pady=0, padx=10, sticky="ew") 
+        self.detailsText.configure(state="disabled")
 
         font = ("Helvetica", 24)
         self.timeLabel = ctk.CTkLabel(master=self.summaryTab, text="", font=font)
@@ -540,7 +544,7 @@ class ClaimbotGUI:
         self.tabView.set("     Summary     ")
 
     def updateSummary(self, summary):
-        successRatio = str(summary.get("success", 0)) + ' / ' + str(summary.get("members", 0))
+        successRatio = f"{summary.get('success', 0)} / {summary.get('members', 0)}"
         reimbursement = "{:,.2f}".format(summary.get("total", 0))
         unsubmittedCount = str(len(summary.get('unsubmitted', [])))
         unsubmittedText = f"Unsubmitted: ({unsubmittedCount})"
@@ -549,12 +553,16 @@ class ClaimbotGUI:
         self.membersLabel.configure(text=successRatio)
         self.reimbursementLabel.configure(text=reimbursement)
         self.unsubmittedLabel.configure(text=unsubmittedText)
-        self.detailsLabel.configure(text=unsubmittedJoined)
+
+        self.detailsText.configure(state="normal")
+        self.detailsText.delete("1.0", "end")
+        self.detailsText.insert("1.0", unsubmittedJoined)
+        self.detailsText.configure(state="disabled")
 
         self.membersLabel.update()
         self.reimbursementLabel.update()
         self.unsubmittedLabel.update()
-        self.detailsLabel.update()
+        self.detailsText.update()
 
     def disableUserInteraction(self):
         self.browseButton.configure(state="disabled")
